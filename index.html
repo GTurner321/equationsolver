@@ -104,17 +104,17 @@ function formatFraction(n, d) {
     d = Math.abs(d);
   }
 
-  // If denominator is 1, display as a whole number, vertically centered
+  // If denominator is 1, display as a whole number
   if (d === 1) {
-    return `<span style="display: inline-block; vertical-align: middle;">${n}</span>`;
+    return `<span style="display: inline-block; vertical-align: middle; font-size: 24px;">${n}</span>`;
   }
 
-  // Return fraction with closer spacing and negative sign centered
+  // Return fraction with closer spacing, negative sign in front, and smaller font for numbers
   return `
-    <span style="display: inline-block; text-align: center; vertical-align: middle;">
-      ${n < 0 ? "−" : ""} 
-      <span style="display: block; line-height: 1; margin-bottom: -2px;">${Math.abs(n)}</span>
-      <span style="display: block; border-top: 1px solid black; line-height: 1; margin-top: -2px;">${d}</span>
+    <span style="display: inline-block; text-align: center; vertical-align: middle; font-size: 20px;">
+      ${n < 0 ? "−" : ""}
+      <span style="display: block; line-height: 1; font-size: 18px; margin-bottom: -2px;">${Math.abs(n)}</span>
+      <span style="display: block; border-top: 1px solid black; font-size: 18px; line-height: 1; margin-top: -2px;">${d}</span>
     </span>
   `;
 }
@@ -123,8 +123,12 @@ function formatEquation(vars) {
   const { a, b, c, d, e, f, g, h, i, j, k, l } = vars;
 
   let equation = `
-    ${formatFraction(a[0], a[1])} ( ${formatFraction(c[0], c[1])}x + ${formatFraction(e[0], e[1])} ) = 
-    ${formatFraction(g[0], g[1])} ( ${formatFraction(i[0], i[1])}x + ${formatFraction(k[0], k[1])} )
+    <span style="font-size: 32px;">${formatFraction(a[0], a[1])}</span> 
+    ( <span style="font-size: 32px;">${formatFraction(c[0], c[1])}</span>x + 
+    <span style="font-size: 32px;">${formatFraction(e[0], e[1])}</span> ) = 
+    <span style="font-size: 32px;">${formatFraction(g[0], g[1])}</span> 
+    ( <span style="font-size: 32px;">${formatFraction(i[0], i[1])}</span>x + 
+    <span style="font-size: 32px;">${formatFraction(k[0], k[1])}</span> )
   `;
 
   return equation.replace(/\+\s*-\s*/g, "- "); // Replace "+ -" with "-"
