@@ -14,14 +14,14 @@
       padding: 20px;
       background-color: lightblue;
     }
-     .equation {
+    .equation {
       font-family: "Pacifico", cursive;
       font-size: 28px;
       text-align: center;
       background-color: lightblue;
       padding: 5px;
       margin-bottom: 5px;
-    }    
+    }
     .input-container {
       display: flex;
       flex-direction: column;
@@ -33,277 +33,85 @@
       padding: 5px;
       font-size: 16px;
     }
-    .input-box:disabled {
-      background-color: #f0f0f0;
-    }
-    .error-message {
-      color: orange;
-      margin-top: 5px;
-    }
-    .success-message {
-      color: green;
-      font-size: 20px;
-      margin-top: 10px;
-      text-align: center;
-    }
-    .points-message {
-    color: green;
-    font-size: 20px;
-    text-align: center;
-    margin-top: 10px;
-    }
     .new-equation-button {
-      margin: 20px auto; /* Centered horizontally */
+      margin: 20px auto;
       padding: 10px 20px;
       font-size: 16px;
       background-color: green;
       color: white;
       border: none;
       cursor: pointer;
-      display: block; /* Makes the button a block element */
+      display: block;
     }
     .new-equation-button:hover {
       background-color: darkgreen;
     }
-        #score-box {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      background-color: yellow;
-      padding: 10px;
-      font-size: 16px;
-      font-weight: bold;
-      border: 2px solid black;
-      z-index: 1000;
-    }
-    
   </style>
 </head>
 <body>
   <button id="new-equation-top" class="new-equation-button">NEW EQUATION</button>
   <div id="equation-container"></div>
-  <div id="score-box">Score = 0</div>
   <script>
-    let a, b, c, d, e, f, g, h, i, j, k, l;
-    let score = 0;
-    let successCount = 0;
-    let inputCount = 0; // Track number of user inputs
-
-function updateScore(bonusPoints) {
-  // Add base 3 points and bonus points to the score
-  const totalPoints = 3 + bonusPoints;
-  score += totalPoints;
-  document.getElementById("score-box").textContent = `Score = ${score}`;
-}
-
-function getRandomNonZeroInteger() {
-  let num;
-  do {
-    num = Math.floor(Math.random() * 21) - 10;
-  } while (num === 0);
-  return num;
-}
-
-function gcd(a, b) {
-  return b === 0 ? Math.abs(a) : gcd(b, a % b);
-}
-
-function getCoprimePair() {
-  let num, denom;
-  do {
-    num = getRandomNonZeroInteger();
-    denom = getRandomNonZeroInteger();
-  } while (gcd(num, denom) !== 1);
-  return [num, denom];
-}
-
-function generateEquation() {
-  let [a, b] = getCoprimePair();
-  let [c, d] = getCoprimePair();
-  let [e, f] = getCoprimePair();
-  let [g, h] = getCoprimePair();
-  let [i, j] = getCoprimePair();
-  let [k, l] = getCoprimePair();
-
-  return { a, b, c, d, e, f, g, h, i, j, k, l };
-}
-
-function formatFraction(n, d) {
-  return d === 1 ? `${n}` : `${n}\n—\n${d}`;
-}
-
-function formatEquation(variables) {
-  const { a, b, c, d, e, f, g, h, i, j, k, l } = variables;
-  return `${formatFraction(a, b)}(${formatFraction(c, d)}x + ${formatFraction(e, f)}) = ${formatFraction(g, h)}(${formatFraction(i, j)}x + ${formatFraction(k, l)})`;
-}
-
-const equation = generateEquation();
-console.log(formatEquation(equation));
-    
-
-
-  const equationContainer = document.getElementById("equation-container");
-  equationContainer.innerHTML = "";
-
-  do {
-    a = Math.floor(Math.random() * 21) - 10;
-    c = Math.floor(Math.random() * 21) - 10;
-  } while (a === c || a === 0 || c === 0 || Math.abs(a - c) === 1); // Ensure a and c are not equal, not zero, and their difference is not 1
-
-  b = Math.floor(Math.random() * 21) - 10;
-  d = Math.floor(Math.random() * 21) - 10;
-
-  // Ensure b and d are not zero
-  while (b === 0) {
-    b = Math.floor(Math.random() * 21) - 10;
-  }
-  while (d === 0) {
-    d = Math.floor(Math.random() * 21) - 10;
-  }
-
-  renderEquation();
-}
-
-
-function renderEquation(command = null) {
-  const equationContainer = document.getElementById("equation-container");
-
-  const equationDiv = document.createElement("div");
-  equationDiv.className = "equation";
-  equationDiv.textContent = formatEquation(a, b, c, d);
-  equationContainer.appendChild(equationDiv);
-
-if (
-  (Math.abs(a - 1) < 0.000001 && Math.abs(b) < 0.000001 && Math.abs(c) < 0.000001) ||
-  (Math.abs(a) < 0.000001 && Math.abs(c - 1) < 0.000001 && Math.abs(d) < 0.000001)
-) {
-  const successMessage = document.createElement("div");
-  successMessage.className = "success-message";
-  const solution = Math.abs(a - 1) < 0.000001 ? formatNumber(d) : formatNumber(b);
-  successMessage.textContent = `Well done! You have solved the equation. x = ${solution}`;
-  equationContainer.appendChild(successMessage);
-
-  // Bonus points logic
-  let pointsMessage = "Points: 3";
-  let bonusPoints = 0;
-
-  if (inputCount <= 3) {
-    bonusPoints = 3;
-    pointsMessage += " +3 bonus";
-  } else if (inputCount === 4) {
-    bonusPoints = 2;
-    pointsMessage += " +2 bonus";
-  } else if (inputCount === 5) {
-    bonusPoints = 1;
-    pointsMessage += " +1 bonus";
-  } else {
-    bonusPoints = 0; // No bonus points for 6 or more inputs
-  }
-
-  // Update the score with base points and bonus points
-  updateScore(bonusPoints);
-
-  // Display the points message
-  const pointsDiv = document.createElement("div");
-  pointsDiv.className = "points-message";
-  pointsDiv.textContent = pointsMessage;
-  equationContainer.appendChild(pointsDiv);
-
-  // New equation button
-  const newEquationButton = document.createElement("button");
-  newEquationButton.className = "new-equation-button";
-  newEquationButton.textContent = "NEW EQUATION";
-  newEquationButton.onclick = () => {
-    generateEquation();
-    window.scrollTo(0, 0); // Scroll back to the top for a new equation
-  };
-  equationContainer.appendChild(newEquationButton);
-
-  successMessage.scrollIntoView({ behavior: "smooth", block: "center" });
-  return;
-}
-
-
-  const inputContainer = document.createElement("div");
-  inputContainer.className = "input-container";
-
-  const inputBox = document.createElement("input");
-  inputBox.className = "input-box";
-  inputBox.type = "text";
-  inputContainer.appendChild(inputBox);
-
-  const errorMessage = document.createElement("span");
-  errorMessage.className = "error-message";
-  inputContainer.appendChild(errorMessage);
-
-  equationContainer.appendChild(inputContainer);
-
-  inputBox.focus();
-
-  inputBox.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    const input = inputBox.value.trim();
-
-    if (!validateInput(input)) {
-      errorMessage.textContent = "Invalid command. Try again.";
-      return;
+    function getRandomNonZeroInteger() {
+      let num;
+      do {
+        num = Math.floor(Math.random() * 21) - 10;
+      } while (num === 0);
+      return num;
     }
 
-    // Increment inputCount for each valid input
-    inputCount += 1;
-
-    errorMessage.textContent = "";
-    inputBox.disabled = true;
-    processCommand(input);
-    renderEquation(input);
-  }
-});
-}
-
-    
-    function processCommand(command) {
-      const value = parseFloat(command.slice(1).replace("x", "")) || 1;
-      const operation = command[0];
-
-      if (command.includes("x")) {
-        if (operation === "+") {
-          a += value;
-          c += value;
-        } else if (operation === "-") {
-          a -= value;
-          c -= value;
-        }
-      } else {
-        if (operation === "+") {
-          b += value;
-          d += value;
-        } else if (operation === "-") {
-          b -= value;
-          d -= value;
-        } else if (operation === "*") {
-          a *= value;
-          b *= value;
-          c *= value;
-          d *= value;
-        } else if (operation === "/") {
-          a /= value;
-          b /= value;
-          c /= value;
-          d /= value;
-        }
-      }
+    function gcd(a, b) {
+      return b === 0 ? Math.abs(a) : gcd(b, a % b);
     }
 
-    function handleNewEquation() {
-  generateEquation(); // Generates a new equation
-  window.scrollTo(0, 0); // Scroll to the top of the page
-}
+    function getCoprimePair() {
+      let num, denom;
+      do {
+        num = getRandomNonZeroInteger();
+        denom = getRandomNonZeroInteger();
+      } while (gcd(num, denom) !== 1);
+      return [num, denom];
+    }
 
-// Add event listener to the top button for generating a new equation
-window.onload = () => {
-  document.getElementById("new-equation-top").addEventListener("click", handleNewEquation);
-};
+    function generateEquation() {
+      return {
+        a: getCoprimePair(), b: getCoprimePair(), c: getCoprimePair(),
+        d: getCoprimePair(), e: getCoprimePair(), f: getCoprimePair(),
+        g: getCoprimePair(), h: getCoprimePair(), i: getCoprimePair(),
+        j: getCoprimePair(), k: getCoprimePair(), l: getCoprimePair()
+      };
+    }
 
+    function formatFraction(n, d) {
+      return d === 1 ? `${n}` : `${n}\n—\n${d}`;
+    }
+
+    function formatEquation(vars) {
+      return `${formatFraction(vars.a[0], vars.a[1])}(${formatFraction(vars.c[0], vars.c[1])}x + ${formatFraction(vars.e[0], vars.e[1])}) = ${formatFraction(vars.g[0], vars.g[1])}(${formatFraction(vars.i[0], vars.i[1])}x + ${formatFraction(vars.k[0], vars.k[1])})`;
+    }
+
+    function renderEquation() {
+      const equationContainer = document.getElementById("equation-container");
+      equationContainer.innerHTML = "";
+
+      const equationVars = generateEquation();
+      const equationDiv = document.createElement("div");
+      equationDiv.className = "equation";
+      equationDiv.textContent = formatEquation(equationVars);
+      equationContainer.appendChild(equationDiv);
+
+      const inputContainer = document.createElement("div");
+      inputContainer.className = "input-container";
+      const inputBox = document.createElement("input");
+      inputBox.className = "input-box";
+      inputBox.type = "text";
+      inputContainer.appendChild(inputBox);
+      equationContainer.appendChild(inputContainer);
+      inputBox.focus();
+    }
+
+    document.getElementById("new-equation-top").addEventListener("click", renderEquation);
+    window.onload = renderEquation;
   </script>
 </body>
 </html>
