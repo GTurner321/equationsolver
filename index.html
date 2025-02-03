@@ -93,21 +93,30 @@
         l: getCoprimePair()
       };
     }
-    
+
 function formatFraction(n, d) {
-  if (d === 1) return `${n}`; // Whole numbers
-  
-  if (n < 0 && d < 0) { 
+  // Ensure negatives are placed in front of the fraction
+  if (n < 0 && d < 0) {
     n = Math.abs(n);
     d = Math.abs(d);
-  } else if (d < 0) { 
+  } else if (d < 0) {
     n = -n;
-    d = -d;
+    d = Math.abs(d);
   }
 
-  return `<div style="display: inline-block; text-align: center;">
-            ${n}<br>—<br>${d}
-          </div>`;
+  // If denominator is 1, display as a whole number, vertically centered
+  if (d === 1) {
+    return `<span style="display: inline-block; vertical-align: middle;">${n}</span>`;
+  }
+
+  // Return fraction with closer spacing and negative sign centered
+  return `
+    <span style="display: inline-block; text-align: center; vertical-align: middle;">
+      ${n < 0 ? "−" : ""} 
+      <span style="display: block; line-height: 1; margin-bottom: -2px;">${Math.abs(n)}</span>
+      <span style="display: block; border-top: 1px solid black; line-height: 1; margin-top: -2px;">${d}</span>
+    </span>
+  `;
 }
 
 function formatEquation(vars) {
