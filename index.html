@@ -1,5 +1,4 @@
-// this is for testing a/b(c/d x + e/f) etc model 
-
+//testing fraction model
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,44 +12,57 @@
       margin: 20px;
       padding: 20px;
       background-color: lightblue;
+      text-align: center;
     }
     .equation {
       font-family: "Pacifico", cursive;
       font-size: 28px;
-      text-align: center;
       background-color: lightblue;
-      padding: 5px;
-      margin-bottom: 5px;
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .fraction {
+      display: inline-block;
+      text-align: center;
+      vertical-align: middle;
+      margin: 0 5px;
+    }
+    .fraction .numerator {
+      display: block;
+      border-bottom: 2px solid black;
+      padding-bottom: 2px;
+    }
+    .fraction .denominator {
+      display: block;
+      padding-top: 2px;
     }
     .input-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 10px;
+      margin-top: 10px;
     }
     .input-box {
-      margin-top: 5px;
       padding: 5px;
       font-size: 16px;
     }
     .new-equation-button {
-      margin: 20px auto;
+      margin-top: 20px;
       padding: 10px 20px;
       font-size: 16px;
       background-color: green;
       color: white;
       border: none;
       cursor: pointer;
-      display: block;
-    }
-    .new-equation-button:hover {
-      background-color: darkgreen;
     }
   </style>
 </head>
 <body>
-  <button id="new-equation-top" class="new-equation-button">NEW EQUATION</button>
-  <div id="equation-container"></div>
+  <button id="new-equation" class="new-equation-button">NEW EQUATION</button>
+  <div id="equation-container" class="equation"></div>
+  <div class="input-container">
+    <input type="text" id="user-input" class="input-box" placeholder="Enter command...">
+  </div>
   <script>
     function getRandomNonZeroInteger() {
       let num;
@@ -73,45 +85,28 @@
       return [num, denom];
     }
 
-    function generateEquation() {
-      return {
-        a: getCoprimePair(), b: getCoprimePair(), c: getCoprimePair(),
-        d: getCoprimePair(), e: getCoprimePair(), f: getCoprimePair(),
-        g: getCoprimePair(), h: getCoprimePair(), i: getCoprimePair(),
-        j: getCoprimePair(), k: getCoprimePair(), l: getCoprimePair()
-      };
-    }
-
     function formatFraction(n, d) {
-      return d === 1 ? `${n}` : `${n}\n—\n${d}`;
+      return `<span class='fraction'><span class='numerator'>${n}</span><span class='denominator'>${d}</span></span>`;
     }
 
-    function formatEquation(vars) {
-      return `${formatFraction(vars.a[0], vars.a[1])}(${formatFraction(vars.c[0], vars.c[1])}x + ${formatFraction(vars.e[0], vars.e[1])}) = ${formatFraction(vars.g[0], vars.g[1])}(${formatFraction(vars.i[0], vars.i[1])}x + ${formatFraction(vars.k[0], vars.k[1])})`;
+    function generateEquation() {
+      let [a, b] = getCoprimePair();
+      let [c, d] = getCoprimePair();
+      let [e, f] = getCoprimePair();
+      let [g, h] = getCoprimePair();
+      let [i, j] = getCoprimePair();
+      let [k, l] = getCoprimePair();
+
+      const equationHTML = `
+        ${formatFraction(a, b)} ( ${formatFraction(c, d)} x + ${formatFraction(e, f)} ) =
+        ${formatFraction(g, h)} ( ${formatFraction(i, j)} x + ${formatFraction(k, l)} )
+      `;
+
+      document.getElementById("equation-container").innerHTML = equationHTML;
     }
 
-    function renderEquation() {
-      const equationContainer = document.getElementById("equation-container");
-      equationContainer.innerHTML = "";
-
-      const equationVars = generateEquation();
-      const equationDiv = document.createElement("div");
-      equationDiv.className = "equation";
-      equationDiv.textContent = formatEquation(equationVars);
-      equationContainer.appendChild(equationDiv);
-
-      const inputContainer = document.createElement("div");
-      inputContainer.className = "input-container";
-      const inputBox = document.createElement("input");
-      inputBox.className = "input-box";
-      inputBox.type = "text";
-      inputContainer.appendChild(inputBox);
-      equationContainer.appendChild(inputContainer);
-      inputBox.focus();
-    }
-
-    document.getElementById("new-equation-top").addEventListener("click", renderEquation);
-    window.onload = renderEquation;
+    document.getElementById("new-equation").addEventListener("click", generateEquation);
+    window.onload = generateEquation;
   </script>
 </body>
 </html>
