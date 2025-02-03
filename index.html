@@ -94,20 +94,32 @@
       };
     }
     
-    function formatFraction(n, d) {
-      if (d === 1) {
-        return `<span class='inline'>${n}</span>`;
-      }
-      return `<span class='fraction'><span class='numerator'>${n}</span><span class='denominator'>${d}</span></span>`;
-    }
-    
-    function formatEquation(vars) {
-      const { a, b, c, d, e, f, g, h, i, j, k, l } = vars;
-      return `
-        ${formatFraction(a[0], a[1])} ( ${formatFraction(c[0], c[1])}x + ${formatFraction(e[0], e[1])} ) = 
-        ${formatFraction(g[0], g[1])} ( ${formatFraction(i[0], i[1])}x + ${formatFraction(k[0], k[1])} )
-      `;
-    }
+function formatFraction(n, d) {
+  if (d === 1) return `${n}`; // Whole numbers
+  
+  if (n < 0 && d < 0) { 
+    n = Math.abs(n);
+    d = Math.abs(d);
+  } else if (d < 0) { 
+    n = -n;
+    d = -d;
+  }
+
+  return `<div style="display: inline-block; text-align: center;">
+            ${n}<br>—<br>${d}
+          </div>`;
+}
+
+function formatEquation(vars) {
+  const { a, b, c, d, e, f, g, h, i, j, k, l } = vars;
+
+  let equation = `
+    ${formatFraction(a[0], a[1])} ( ${formatFraction(c[0], c[1])}x + ${formatFraction(e[0], e[1])} ) = 
+    ${formatFraction(g[0], g[1])} ( ${formatFraction(i[0], i[1])}x + ${formatFraction(k[0], k[1])} )
+  `;
+
+  return equation.replace(/\+\s*-\s*/g, "- "); // Replace "+ -" with "-"
+}
     
     function renderEquation() {
       const equationContainer = document.getElementById("equation-container");
