@@ -84,7 +84,7 @@
   <div id="equation-container"></div>
   <div id="score-box">Score = 0</div>
   <script>
-    let a, b, c, d;
+    let a, b, c, d, e, f, g, h, i, j, k, l;
     let score = 0;
     let successCount = 0;
     let inputCount = 0; // Track number of user inputs
@@ -96,63 +96,51 @@ function updateScore(bonusPoints) {
   document.getElementById("score-box").textContent = `Score = ${score}`;
 }
 
-    function formatNumber(num) {
-  // If the absolute value of the number is less than 0.0005, return '0' or '-0' depending on the sign
-  if (Math.abs(num) < 0.0005) {
-    return num < 0 ? "-0" : "0";
-  }
-  
-  // If the number is a multiple of 10 (like 200), keep the integer part intact
-  if (num % 10 === 0 && num % 1 === 0) {
-    return num.toString();
-  }
-  
-  // Otherwise, proceed with the existing logic for decimal values
-  const formatted = num.toFixed(8);
-  
-  // Check if there are non-zero digits beyond the 3rd decimal place
-  const beyondThirdDecimal = formatted.slice(5).split('').some((digit) => digit !== '0');
-  
-  // Trim to 3 decimal places
-  let trimmed = parseFloat(num.toFixed(3)).toString();
-  
-  // If there are significant digits beyond the 3rd decimal place, return the full 3-decimal version
-  if (beyondThirdDecimal) {
-    return trimmed;
-  }
-  
-  // Otherwise, strip trailing zeros and the decimal point if not needed
-  return trimmed.replace(/\.?0+$/, "");
+function getRandomNonZeroInteger() {
+  let num;
+  do {
+    num = Math.floor(Math.random() * 21) - 10;
+  } while (num === 0);
+  return num;
 }
 
-    function formatEquation(a, b, c, d) {
-      const isEndConditionI = Math.abs(a - 1) < 0.000001 && Math.abs(b) < 0.000001 && Math.abs(c) < 0.000001;
-      const isEndConditionII = Math.abs(a) < 0.000001 && Math.abs(c - 1) < 0.000001 && Math.abs(d) < 0.000001;
+function gcd(a, b) {
+  return b === 0 ? Math.abs(a) : gcd(b, a % b);
+}
 
-      const left = [
-        a !== 0 ? (a === 1 ? "x" : a === -1 ? "-x" : formatNumber(a) + "x") : "",
-        !isEndConditionI && b !== 0 ? `${b > 0 && a !== 0 ? "+" : ""}${formatNumber(b)}` : "",
-      ].join("").trim() || "0";
+function getCoprimePair() {
+  let num, denom;
+  do {
+    num = getRandomNonZeroInteger();
+    denom = getRandomNonZeroInteger();
+  } while (gcd(num, denom) !== 1);
+  return [num, denom];
+}
 
-      const right = [
-        c !== 0 ? (c === 1 ? "x" : c === -1 ? "-x" : formatNumber(c) + "x") : "",
-        !isEndConditionII && d !== 0 ? `${d > 0 && c !== 0 ? "+" : ""}${formatNumber(d)}` : "",
-      ].join("").trim() || "0";
+function generateEquation() {
+  let [a, b] = getCoprimePair();
+  let [c, d] = getCoprimePair();
+  let [e, f] = getCoprimePair();
+  let [g, h] = getCoprimePair();
+  let [i, j] = getCoprimePair();
+  let [k, l] = getCoprimePair();
 
-      return `${left} = ${right}`;
-    }
+  return { a, b, c, d, e, f, g, h, i, j, k, l };
+}
 
-    function validateInput(input) {
-      // Disallow invalid patterns like '/nx', '*nx', '/-nx', '*-nx'
-      if (/^[\/\*][\-]?\d*x$/.test(input)) {
-        return false;
-      }
-      return /^[\+\-\*\/]x?$|^[\+\-\*\/](\d+(\.\d+)?|\-\d+(\.\d+)?)x?$/.test(input);
-    }
+function formatFraction(n, d) {
+  return d === 1 ? `${n}` : `${n}\n—\n${d}`;
+}
 
-    function generateEquation() {
-  // Reset inputCount when a new equation is generated
-  inputCount = 0;
+function formatEquation(variables) {
+  const { a, b, c, d, e, f, g, h, i, j, k, l } = variables;
+  return `${formatFraction(a, b)}(${formatFraction(c, d)}x + ${formatFraction(e, f)}) = ${formatFraction(g, h)}(${formatFraction(i, j)}x + ${formatFraction(k, l)})`;
+}
+
+const equation = generateEquation();
+console.log(formatEquation(equation));
+    
+
 
   const equationContainer = document.getElementById("equation-container");
   equationContainer.innerHTML = "";
