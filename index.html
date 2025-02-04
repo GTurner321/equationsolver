@@ -95,20 +95,19 @@
     }
 
 function formatFraction(n, d, afterX = false) {
-  let sign = "";
-  if (n < 0 && d > 0) {
-    sign = "−"; // Negative fraction
-    n = Math.abs(n);
-  } else if (n > 0 && d < 0) {
-    sign = "−"; // Negative fraction
-    d = Math.abs(d);
-  } else if (n < 0 && d < 0) {
-    // Both negative, becomes positive
-    n = Math.abs(n);
-    d = Math.abs(d);
+  let sign = n * d < 0 ? "−" : ""; // Determine the sign based on the product of n and d
+  n = Math.abs(n);
+  d = Math.abs(d);
+
+  // Handle fractions with an absolute value of 1 for a/b, c/d, g/h, i/j
+  if (n === 1 && d === 1) {
+    return `
+      <span style="display: inline-block; vertical-align: middle; font-size: ${afterX ? "28px" : "24px"};">
+        ${sign}
+      </span>`;
   }
 
-  // Handle case where denominator is 1
+  // If denominator is 1, display only the numerator
   if (d === 1) {
     return `
       <span style="display: inline-block; vertical-align: middle; font-size: ${afterX ? "28px" : "24px"};">
@@ -116,13 +115,14 @@ function formatFraction(n, d, afterX = false) {
       </span>`;
   }
 
-  // Return fraction with proper sign placement
+  // Default fraction display
   return `
     <span style="display: inline-block; text-align: center; vertical-align: middle; font-size: 20px;">
       ${sign}
       <span style="display: block; line-height: 1; font-size: 18px; margin-bottom: -2px;">${n}</span>
       <span style="display: block; border-top: 1px solid black; font-size: 18px; line-height: 1; margin-top: -2px;">${d}</span>
-    </span>`;
+    </span>
+  `;
 }
 
 function formatEquation(vars) {
