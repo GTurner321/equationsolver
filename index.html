@@ -100,17 +100,19 @@ function formatFraction(n, d) {
   n = Math.abs(n);
   d = Math.abs(d);
 
-  // If denominator is 1, display as a whole number
+  // If denominator is 1, return the numerator as a whole number
   if (d === 1) {
-    return `<span style="display: inline-block; vertical-align: middle; font-size: 28px;">${sign}${n}</span>`;
+    return `<span style="display: inline-flex; align-items: center; font-size: 28px;">${sign}${n}</span>`;
   }
 
-  // Format fractions vertically with closer spacing
+  // Format fractions vertically with the sign to the left
   return `
-    <span style="display: inline-block; text-align: center; vertical-align: middle; font-size: 24px;">
+    <span style="display: inline-flex; align-items: center; font-size: 24px;">
       ${sign}
-      <span style="display: block; line-height: 1; font-size: 20px; margin-bottom: -2px;">${n}</span>
-      <span style="display: block; border-top: 1px solid black; font-size: 20px; line-height: 1; margin-top: -2px;">${d}</span>
+      <span style="display: inline-block; text-align: center; margin-left: 4px;">
+        <span style="display: block; font-size: 20px; margin-bottom: -2px;">${n}</span>
+        <span style="display: block; border-top: 1px solid black; font-size: 20px; line-height: 1; margin-top: -2px;">${d}</span>
+      </span>
     </span>
   `;
 }
@@ -118,17 +120,24 @@ function formatFraction(n, d) {
 function formatEquation(vars) {
   const { a, b, c, d, e, f, g, h, i, j, k, l } = vars;
 
-  let equation = `
-    ${formatFraction(a[0], a[1])}
+  // Determine if the left-hand side and right-hand side have the initial 1
+  const leftInitial = a[0] / a[1] === 1 ? "" : formatFraction(a[0], a[1]);
+  const rightInitial = g[0] / g[1] === 1 ? "" : formatFraction(g[0], g[1]);
+
+  // Format the equation with brackets and signs
+  const equation = `
+    ${leftInitial ? `${leftInitial}(` : "("}
     ${formatFraction(c[0], c[1])}x
-    ${formatFraction(e[0], e[1])}
+    ${e[0] / e[1] > 0 ? "+" : ""}${formatFraction(e[0], e[1])}
+    )
     =
-    ${formatFraction(g[0], g[1])}
+    ${rightInitial ? `${rightInitial}(` : "("}
     ${formatFraction(i[0], i[1])}x
-    ${formatFraction(k[0], k[1])}
+    ${k[0] / k[1] > 0 ? "+" : ""}${formatFraction(k[0], k[1])}
+    )
   `;
 
-  // Replace "+ -" with "-" and ensure proper formatting
+  // Replace "+ -" with "-" for cleaner formatting
   return equation.replace(/\+\s*−\s*/g, "− ");
 }
     
