@@ -95,24 +95,28 @@
     }
 
 function formatFraction(n, d) {
-  // Handle signs and absolute values
-  let sign = (n * d < 0) ? "−" : ""; // Negative if n and d have opposite signs
-  n = Math.abs(n);
-  d = Math.abs(d);
-
-  // If denominator is 1, return the numerator as a whole number
-  if (d === 1) {
-    return `<span style="display: inline-flex; align-items: center; font-size: 28px;">${sign}${n}</span>`;
+  // Simplify negatives and place sign before the fraction
+  if (n < 0 && d < 0) {
+    n = Math.abs(n);
+    d = Math.abs(d);
+  } else if (d < 0) {
+    n = -n;
+    d = Math.abs(d);
   }
 
-  // Format fractions vertically with the sign to the left
+  // Handle the case where the fraction is ±1
+  if (Math.abs(n) === Math.abs(d)) {
+    return n / d < 0
+      ? `<span style="font-size: 28px; vertical-align: middle;">−</span>`
+      : ""; // Return an empty string if positive and no number
+  }
+
+  // Normal fraction display
   return `
-    <span style="display: inline-flex; align-items: center; font-size: 24px;">
-      ${sign}
-      <span style="display: inline-block; text-align: center; margin-left: 4px;">
-        <span style="display: block; font-size: 20px; margin-bottom: -2px;">${n}</span>
-        <span style="display: block; border-top: 1px solid black; font-size: 20px; line-height: 1; margin-top: -2px;">${d}</span>
-      </span>
+    <span style="display: inline-block; text-align: center; vertical-align: middle; font-size: 20px;">
+      ${n < 0 ? "−" : ""}
+      <span style="display: block; line-height: 1; font-size: 18px; margin-bottom: -2px;">${Math.abs(n)}</span>
+      <span style="display: block; border-top: 1px solid black; font-size: 18px; line-height: 1; margin-top: -2px;">${Math.abs(d)}</span>
     </span>
   `;
 }
@@ -120,27 +124,22 @@ function formatFraction(n, d) {
 function formatEquation(vars) {
   const { a, b, c, d, e, f, g, h, i, j, k, l } = vars;
 
-  // Determine if the left-hand side and right-hand side have the initial 1
-  const leftInitial = a[0] / a[1] === 1 ? "" : formatFraction(a[0], a[1]);
-  const rightInitial = g[0] / g[1] === 1 ? "" : formatFraction(g[0], g[1]);
+  // Determine the signs for e/f and k/l
+  const efSign = e[0] / e[1] > 0 ? "+" : "−";
+  const klSign = k[0] / k[1] > 0 ? "+" : "−";
 
-  // Format the equation with brackets and correct sign handling
-  const equation = `
-    ${leftInitial ? `${leftInitial}(` : "("}
-    ${formatFraction(c[0], c[1])}x
-    <span style="font-size: 28px; vertical-align: middle;">${e[0] > 0 ? "+" : "−"}</span>
-    ${formatFraction(e[0], e[1])}
-    )
-    =
-    ${rightInitial ? `${rightInitial}(` : "("}
-    ${formatFraction(i[0], i[1])}x
-    <span style="font-size: 28px; vertical-align: middle;">${k[0] > 0 ? "+" : "−"}</span>
-    ${formatFraction(k[0], k[1])}
-    )
+  // Format the equation with the new rules
+  let equation = `
+    ${formatFraction(a[0], a[1])}( ${formatFraction(c[0], c[1])}x 
+    <span style="font-size: 28px; vertical-align: middle;">${efSign}</span> 
+    ${formatFraction(e[0], e[1])} ) = 
+    ${formatFraction(g[0], g[1])}( ${formatFraction(i[0], i[1])}x 
+    <span style="font-size: 28px; vertical-align: middle;">${klSign}</span> 
+    ${formatFraction(k[0], k[1])} )
   `;
 
-  // Replace unnecessary "+ -" combinations for cleaner formatting
-  return equation.replace(/\+\s*−\s*/g, "−");
+  // Replace "+ −" with "−"
+  return equation.replace(/\+\s*−/g, "−");
 }
     
     function renderEquation() {
