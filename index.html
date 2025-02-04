@@ -124,21 +124,23 @@ function formatEquation(vars) {
   const leftInitial = a[0] / a[1] === 1 ? "" : formatFraction(a[0], a[1]);
   const rightInitial = g[0] / g[1] === 1 ? "" : formatFraction(g[0], g[1]);
 
-  // Format the equation with brackets and signs
+  // Format the equation with brackets and correct sign handling
   const equation = `
     ${leftInitial ? `${leftInitial}(` : "("}
     ${formatFraction(c[0], c[1])}x
-    ${e[0] / e[1] > 0 ? "+" : ""}${formatFraction(e[0], e[1])}
+    <span style="font-size: 28px; vertical-align: middle;">${e[0] / e[1] > 0 ? "+" : "−"}</span>
+    ${formatFraction(e[0], e[1])}
     )
     =
     ${rightInitial ? `${rightInitial}(` : "("}
     ${formatFraction(i[0], i[1])}x
-    ${k[0] / k[1] > 0 ? "+" : ""}${formatFraction(k[0], k[1])}
+    <span style="font-size: 28px; vertical-align: middle;">${k[0] / k[1] > 0 ? "+" : "−"}</span>
+    ${formatFraction(k[0], k[1])}
     )
   `;
 
-  // Replace "+ -" with "-" for cleaner formatting
-  return equation.replace(/\+\s*−\s*/g, "− ");
+  // Replace unnecessary "+ -" combinations for cleaner formatting
+  return equation.replace(/\+\s*−\s*/g, "−");
 }
     
     function renderEquation() {
