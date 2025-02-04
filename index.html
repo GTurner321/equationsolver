@@ -94,13 +94,13 @@
       };
     }
 
-function formatFraction(n, d, afterX = false) {
-  let sign = n * d < 0 ? "−" : ""; // Determine the sign based on the product of n and d
+function formatFraction(n, d, afterX = false, skipOne = true, inlineSign = false) {
+  let sign = n * d < 0 ? "−" : ""; // Determine the sign
   n = Math.abs(n);
   d = Math.abs(d);
 
-  // Handle fractions with an absolute value of 1 for a/b, c/d, g/h, i/j
-  if (n === 1 && d === 1) {
+  // Handle absolute value of 1
+  if (n === 1 && d === 1 && skipOne) {
     return `
       <span style="display: inline-block; vertical-align: middle; font-size: ${afterX ? "28px" : "24px"};">
         ${sign}
@@ -117,7 +117,7 @@ function formatFraction(n, d, afterX = false) {
 
   // Default fraction display
   return `
-    <span style="display: inline-block; text-align: center; vertical-align: middle; font-size: 20px;">
+    <span style="display: inline-block; text-align: center; vertical-align: middle; font-size: ${inlineSign ? "28px" : "20px"};">
       ${sign}
       <span style="display: block; line-height: 1; font-size: 18px; margin-bottom: -2px;">${n}</span>
       <span style="display: block; border-top: 1px solid black; font-size: 18px; line-height: 1; margin-top: -2px;">${d}</span>
@@ -128,20 +128,14 @@ function formatFraction(n, d, afterX = false) {
 function formatEquation(vars) {
   const { a, b, c, d, e, f, g, h, i, j, k, l } = vars;
 
-  // Determine signs for e/f and k/l
-  const efSign = e[0] / e[1] > 0 ? "+" : "−";
-  const klSign = k[0] / k[1] > 0 ? "+" : "−";
-
   // Format the equation
   let equation = `
     ${formatFraction(a[0], a[1])}
     ( ${formatFraction(c[0], c[1])}x
-    <span style="font-size: 28px; vertical-align: middle;">${efSign}</span>
-    ${formatFraction(e[0], e[1], true)} ) =
+    ${formatFraction(e[0], e[1], true, false, true)} ) =
     ${formatFraction(g[0], g[1])}
     ( ${formatFraction(i[0], i[1])}x
-    <span style="font-size: 28px; vertical-align: middle;">${klSign}</span>
-    ${formatFraction(k[0], k[1], true)} )
+    ${formatFraction(k[0], k[1], true, false, true)} )
   `;
 
   // Replace double signs after 'x' or between fractions
