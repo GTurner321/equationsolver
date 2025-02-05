@@ -58,11 +58,13 @@
       font-size: 32px; /* Larger font size for operation symbols */
     }
     .pacifico {
-     font-family: 'Pacifico', cursive;
-     vertical-align: middle;
-     line-height: 0;
+      font-family: 'Pacifico', cursive;
+      vertical-align: middle; /* Adjust to match baseline alignment */
+      position: relative;
+      top: -3px; /* Raise the 'x' slightly (negative values go up) */
+      line-height: 1; /* Set a consistent height */
     }
-    .bracket {
+        .bracket {
       font-size: 36px; /* Larger font size for brackets */
     }
   </style>
@@ -125,7 +127,7 @@
       // If denominator is 1, display only the numerator
       if (d === 1) {
         return `
-          <span style="display: inline-block; vertical-align: middle; font-size: 24px;">
+          <span style="display: inline-block; vertical-align: middle; font-size: 28px;">
             ${sign}${n}
           </span>`;
       }
