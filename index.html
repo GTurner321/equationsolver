@@ -128,13 +128,16 @@
       }
 
       // If denominator is 1, display only the numerator
-      if (d === 1) {
+        if (d === 1) {
         return `
-          <span style="display: inline-block; vertical-align: middle; font-size: 22px;">
-            ${sign}${n}
-          </span>`;
+        <span style="display: inline-block; vertical-align: middle; font-size: 22px;">
+        ${sign}
+        </span>
+        <span style="display: inline-block; vertical-align: middle; font-size: 30px;">
+        ${n}
+        </span>`;
       }
-
+      
       // Default fraction display
       return `
         <span style="display: inline-flex; align-items: center; vertical-align: middle;">
