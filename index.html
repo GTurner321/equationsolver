@@ -17,7 +17,6 @@
       align-items: center;
       font-size: 28px;
       margin: 20px;
-      font-family: 'Pacifico', cursive;
     }
     .fraction {
       display: inline-flex;
@@ -54,6 +53,16 @@
     }
     .small-op {
       font-size: 18px; /* Smaller font size for operation symbols */
+    }
+    .large-op {
+      font-size: 24px; /* Larger font size for operation symbols */
+    }
+    .pacifico {
+      font-family: 'Pacifico', cursive; /* Pacifico font for 'x' */
+      vertical-align: 10%; /* Raise the 'x' slightly */
+    }
+    .bracket {
+      font-size: 32px; /* Larger font size for brackets */
     }
   </style>
 </head>
@@ -99,7 +108,7 @@
       };
     }
 
-    function formatFraction(n, d, skipOne = true) {
+    function formatFraction(n, d, skipOne = true, isAfterX = false) {
       let sign = n * d < 0 ? "−" : ""; // Determine the sign
       n = Math.abs(n);
       d = Math.abs(d);
@@ -123,7 +132,7 @@
       // Default fraction display
       return `
         <span style="display: inline-flex; align-items: center; vertical-align: middle;">
-          <span style="font-size: 24px; margin-right: 2px;">${sign}</span>
+          <span class="${isAfterX ? 'large-op' : 'small-op'}">${sign}</span>
           <span style="display: inline-flex; flex-direction: column; align-items: center;">
             <span style="font-size: 18px; line-height: 1;">${n}</span>
             <span style="border-top: 1px solid black; font-size: 18px; line-height: 1;">${d}</span>
@@ -138,9 +147,9 @@
       // Format the equation
       let equation = `
         ${formatFraction(a[0], a[1])}
-        <span class="small-op">(</span> ${formatFraction(c[0], c[1])}x${e[0] * e[1] < 0 ? "<span class='small-op'>−</span>" : "+"}${formatFraction(Math.abs(e[0]), Math.abs(e[1]), false)} <span class="small-op">)</span> = 
+        <span class="bracket">(</span> ${formatFraction(c[0], c[1])}<span class="pacifico">x</span> ${e[0] * e[1] < 0 ? "<span class='large-op'>−</span>" : "<span class='large-op'>+</span>"} ${formatFraction(Math.abs(e[0]), Math.abs(e[1]), false, true)} <span class="bracket">)</span> = 
         ${formatFraction(g[0], g[1])}
-        <span class="small-op">(</span> ${formatFraction(i[0], i[1])}x${k[0] * k[1] < 0 ? "<span class='small-op'>−</span>" : "+"}${formatFraction(Math.abs(k[0]), Math.abs(k[1]), false)} <span class="small-op">)</span>
+        <span class="bracket">(</span> ${formatFraction(i[0], i[1])}<span class="pacifico">x</span> ${k[0] * k[1] < 0 ? "<span class='large-op'>−</span>" : "<span class='large-op'>+</span>"} ${formatFraction(Math.abs(k[0]), Math.abs(k[1]), false, true)} <span class="bracket">)</span>
       `;
 
       return equation;
