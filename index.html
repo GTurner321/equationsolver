@@ -55,11 +55,12 @@
       font-size: 18px; /* Smaller font size for operation symbols */
     }
     .large-op {
-      font-size: 24px; /* Larger font size for operation symbols */
+      font-size: 28px; /* Larger font size for operation symbols */
     }
     .pacifico {
-      font-family: 'Pacifico', cursive; /* Pacifico font for 'x' */
-      vertical-align: 25%; /* Raise the 'x' more noticeably */
+     font-family: 'Pacifico', cursive;
+     vertical-align: middle;
+     line-height: 1;
     }
     .bracket {
       font-size: 32px; /* Larger font size for brackets */
@@ -116,7 +117,7 @@
       // Handle absolute value of 1
       if (n === 1 && d === 1 && skipOne) {
         return `
-          <span style="display: inline-block; vertical-align: middle; font-size: 24px;">
+          <span style="display: inline-block; vertical-align: middle; font-size: 18px;">
             ${sign}
           </span>`;
       }
