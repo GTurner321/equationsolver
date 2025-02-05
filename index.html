@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -106,22 +106,22 @@
 
       // Handle absolute value of 1
       if (n === 1 && d === 1 && skipOne) {
-        return 
+        return `
           <span style="display: inline-block; vertical-align: middle; font-size: 24px;">
             ${sign}
-          </span>;
+          </span>`;
       }
 
       // If denominator is 1, display only the numerator
       if (d === 1) {
-        return 
+        return `
           <span style="display: inline-block; vertical-align: middle; font-size: 24px;">
             ${sign}${n}
-          </span>;
+          </span>`;
       }
 
       // Default fraction display
-      return 
+      return `
         <span style="display: inline-flex; align-items: center; vertical-align: middle;">
           <span style="font-size: 24px; margin-right: 2px;">${sign}</span>
           <span style="display: inline-flex; flex-direction: column; align-items: center;">
@@ -129,19 +129,19 @@
             <span style="border-top: 1px solid black; font-size: 18px; line-height: 1;">${d}</span>
           </span>
         </span>
-      ;
+      `;
     }
 
     function formatEquation(vars) {
       const { a, b, c, d, e, f, g, h, i, j, k, l } = vars;
 
       // Format the equation
-      let equation = 
+      let equation = `
         ${formatFraction(a[0], a[1])}
         <span class="small-op">(</span> ${formatFraction(c[0], c[1])}x${e[0] * e[1] < 0 ? "<span class='small-op'>−</span>" : "+"}${formatFraction(Math.abs(e[0]), Math.abs(e[1]), false)} <span class="small-op">)</span> = 
         ${formatFraction(g[0], g[1])}
         <span class="small-op">(</span> ${formatFraction(i[0], i[1])}x${k[0] * k[1] < 0 ? "<span class='small-op'>−</span>" : "+"}${formatFraction(Math.abs(k[0]), Math.abs(k[1]), false)} <span class="small-op">)</span>
-      ;
+      `;
 
       return equation;
     }
