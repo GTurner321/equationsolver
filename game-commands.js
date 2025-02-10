@@ -17,10 +17,10 @@ function processBracketCommand(command) {
   const multiplyRegex = /^\*(-?\d+)$|^x(-?\d+)$/;
   const multiplyFractionRegex = /^\*(-?\d+)\/(\d+)$|^x(-?\d+)\/(\d+)$/;
   const divideRegex = /^\/(-?\d+)$/;
-  const lhsBracketRegex = /^lhs\*\(\)(\d+)$|^lhsx\(\)(\d+)$|^lhs\*br(\d+)$|^lhsxbr(\d+)$/;
-  const lhsBracketFractionRegex = /^lhs\*\(\)(\d+)\/(\d+)$|^lhsx\(\)(\d+)\/(\d+)$|^lhs\*br(\d+)\/(\d+)$|^lhsxbr(\d+)\/(\d+)$/;
-  const rhsBracketRegex = /^rhs\*\(\)(\d+)$|^rhsx\(\)(\d+)$|^rhs\*br(\d+)$|^rhsxbr(\d+)$/;
-  const rhsBracketFractionRegex = /^rhs\*\(\)(\d+)\/(\d+)$|^rhsx\(\)(\d+)\/(\d+)$|^rhs\*br(\d+)\/(\d+)$|^rhsxbr(\d+)\/(\d+)$/;
+  const lhsBracketRegex = /^lhs\*\(\)(-?\d+)$|^lhsx\(\)(-?\d+)$|^lhs\*br(-?\d+)$|^lhsxbr(-?\d+)$/;
+  const lhsBracketFractionRegex = /^lhs\*\(\)(-?\d+)\/(\d+)$|^lhsx\(\)(-?\d+)\/(\d+)$|^lhs\*br(-?\d+)\/(\d+)$|^lhsxbr(-?\d+)\/(\d+)$/;
+  const rhsBracketRegex = /^rhs\*\(\)(-?\d+)$|^rhsx\(\)(-?\d+)$|^rhs\*br(-?\d+)$|^rhsxbr(-?\d+)$/;
+  const rhsBracketFractionRegex = /^rhs\*\(\)(-?\d+)\/(\d+)$|^rhsx\(\)(-?\d+)\/(\d+)$|^rhs\*br(-?\d+)\/(\d+)$|^rhsxbr(-?\d+)\/(\d+)$/;
   const fractionEqualityRegex = /^(\d+)\/(\d+)=(\d+)\/(\d+)$/;
   const lhsDivideRegex = /^lhs\/(\d+),\/(\d+)$|^lhs\/-(\d+),\/-(\d+)$/;
   const rhsDivideRegex = /^rhs\/(\d+),\/(\d+)$|^rhs\/-(\d+),\/-(\d+)$/;
@@ -65,8 +65,9 @@ function processBracketCommand(command) {
 
   // LHS bracket operations
   if ((match = command.match(lhsBracketRegex))) {
-    const n = parseInt(match[1] || match[2] || match[3]);
-    if (currentValues.a % n === 0) {
+    const n = parseInt(match[1] || match[2] || match[3] || match[4]);
+    const absN = Math.abs(n);
+    if (currentValues.a % absN === 0) {
       currentValues.a /= n;
       currentValues.c *= n;
       currentValues.e *= n;
@@ -79,7 +80,8 @@ function processBracketCommand(command) {
   if ((match = command.match(lhsBracketFractionRegex))) {
     const n = parseInt(match[1] || match[3]);
     const m = parseInt(match[2] || match[4]);
-    if (currentValues.a % n === 0 && currentValues.b % m === 0) {
+    const absN = Math.abs(n);
+    if (currentValues.a % absN === 0 && currentValues.b % m === 0) {
       currentValues.a /= n;
       currentValues.b /= m;
       currentValues.c *= n;
@@ -93,8 +95,9 @@ function processBracketCommand(command) {
 
   // RHS bracket operations
   if ((match = command.match(rhsBracketRegex))) {
-    const n = parseInt(match[1] || match[2] || match[3]);
-    if (currentValues.g % n === 0) {
+    const n = parseInt(match[1] || match[2] || match[3] || match[4]);
+    const absN = Math.abs(n);
+    if (currentValues.g % absN === 0) {
       currentValues.g /= n;
       currentValues.i *= n;
       currentValues.k *= n;
@@ -107,7 +110,8 @@ function processBracketCommand(command) {
   if ((match = command.match(rhsBracketFractionRegex))) {
     const n = parseInt(match[1] || match[3]);
     const m = parseInt(match[2] || match[4]);
-    if (currentValues.g % n === 0 && currentValues.h % m === 0) {
+    const absN = Math.abs(n);
+    if (currentValues.g % absN === 0 && currentValues.h % m === 0) {
       currentValues.g /= n;
       currentValues.h /= m;
       currentValues.i *= n;
