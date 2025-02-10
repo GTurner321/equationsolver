@@ -59,22 +59,27 @@ if ((match = command.match(multiplyRegex))) {
     return true;
   }
 
-  // Divide command
-  if ((match = command.match(divideRegex))) {
-    const n = parseInt(match[1]);
-    if (currentValues.a % n === 0 && currentValues.g % n === 0) {
-      currentValues.a /= n;
-      currentValues.g /= n;
-    } else {
-      currentValues.b *= Math.abs(n);
-      currentValues.h *= Math.abs(n);
-      if (n < 0) {
-        currentValues.a *= -1;
-        currentValues.g *= -1;
-      }
-    }
-    return true;
+ // Divide each side separately by n
+if ((match = command.match(/^\/(-?\d+)$/))) {
+  const n = parseInt(match[1]);
+
+  // Handle 'a' and 'b'
+  if (currentValues.a % n === 0) {
+    currentValues.a /= n;
+  } else {
+    currentValues.b *= n;
   }
+
+  // Handle 'g' and 'h'
+  if (currentValues.g % n === 0) {
+    currentValues.g /= n;
+  } else {
+    currentValues.h *= n;
+  }
+
+  return true;
+}
+
 
   // LHS bracket operations
   if ((match = command.match(lhsBracketRegex))) {
