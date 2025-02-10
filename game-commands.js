@@ -27,13 +27,24 @@ function processBracketCommand(command) {
 
   let match;
 
-  // Multiply command
-  if ((match = command.match(multiplyRegex))) {
-    const n = parseInt(match[1] || match[2]);
+// Multiply command
+if ((match = command.match(multiplyRegex))) {
+  const n = parseInt(match[1] || match[2]);
+
+  if (currentValues.b % n === 0) {
+    currentValues.b /= n;
+  } else {
     currentValues.a *= n;
-    currentValues.g *= n;
-    return true;
   }
+
+  if (currentValues.h % n === 0) {
+    currentValues.h /= n;
+  } else {
+    currentValues.g *= n;
+  }
+
+  return true;
+}
 
   // Multiply fraction command
   if ((match = command.match(multiplyFractionRegex))) {
