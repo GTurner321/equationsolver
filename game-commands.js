@@ -7,7 +7,8 @@ function processCommand(command) {
   if (needsBracketCommands) {
     return processBracketCommand(command);
   } else {
-    return false; // For now, returning false to indicate new commands needed
+    document.getElementById('command-status').innerHTML = 'New commands required';
+    return false;
   }
 }
 
