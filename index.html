@@ -211,44 +211,35 @@ function formatCombinedNumerator(coeff, constant) {
   const outerValue = evaluateFraction(outer1, outer2);
   let result = "";
 
-  // Add outer fraction unless it's 1
   if (outerValue === -1) {
     result += "-";
   } else if (outerValue !== 1) {
     result += formatFraction(outer1, outer2);
   }
 
-  // Handle case where denominators are equal, but not when they're both 1
   if (d === f && !(d === 1 && f === 1)) {
     const numerator = formatCombinedNumerator(c, e);
     const fraction = formatFraction(1, d, true).replace('1', numerator);
     
-    // Add brackets if there's an outer term that's not 1
-    if (outerValue === -1) {
-      return `${result}\\left(${fraction}\\right)`;
-    }
-    if (outerValue !== 1) {
+    if (outerValue === -1 || outerValue !== 1) {
       return `${result}\\left(${fraction}\\right)`;
     }
     return `${result}${fraction}`;
   }
 
-  // Handle regular cases
   if (c === 0) return `${result}${formatFraction(e, f)}`;
-  if (e === 0) return `${result}${formatFraction(c, d)}x`;
+  if (e === 0) {
+    return d === 1 ? `${result}${formatXCoefficient(c)}` : `${result}${formatFraction(c, d)}x`;
+  }
 
   const isEFNegative = (e * f) < 0;
   const fractionEF = formatFraction(Math.abs(e), Math.abs(f));
   const sign = isEFNegative ? "-" : "+";
-  const cTerm = `${formatFraction(c, d)}x`;
+  const cTerm = d === 1 ? formatXCoefficient(c) : `${formatFraction(c, d)}x`;
 
   const innerExpression = `${cTerm} ${sign} ${fractionEF}`;
   
-  // Add brackets if there's an outer term that's not 1
-  if (outerValue === -1) {
-    return `${result}\\left(${innerExpression}\\right)`;
-  }
-  if (outerValue !== 1) {
+  if (outerValue === -1 || outerValue !== 1) {
     return `${result}\\left(${innerExpression}\\right)`;
   }
   return `${result}${innerExpression}`;
