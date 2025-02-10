@@ -187,17 +187,23 @@
       return `${coeff}x`;
     }
 
-    function formatCombinedNumerator(coeff, constant) {
-      let result = "";
-      if (coeff !== 0) {
-        result += formatXCoefficient(coeff);
-        if (constant > 0) result += "+";
-      }
-      if (constant !== 0 || coeff === 0) {
-        result += `${constant}`;
-      }
-      return result;
+function formatCombinedNumerator(coeff, constant) {
+  let result = "";
+  if (coeff !== 0) {
+    if (coeff === 1) {
+      result += "x";
+    } else if (coeff === -1) {
+      result += "-x";
+    } else {
+      result += `${coeff}x`;
     }
+    if (constant > 0) result += "+";
+  }
+  if (constant !== 0 || coeff === 0) {
+    result += `${constant}`;
+  }
+  return result;
+}
 
     function formatExpression(outer1, outer2, c, d, e, f) {
   if (c === 0 && e === 0) return "0";
