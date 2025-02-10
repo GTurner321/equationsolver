@@ -21,7 +21,9 @@ function processBracketCommand(command) {
   const lhsBracketFractionRegex = /^lhs\*\(\)(-?\d+)\/(\d+)$|^lhsx\(\)(-?\d+)\/(\d+)$|^lhs\*br(-?\d+)\/(\d+)$|^lhsxbr(-?\d+)\/(\d+)$/;
   const rhsBracketRegex = /^rhs\*\(\)(-?\d+)$|^rhsx\(\)(-?\d+)$|^rhs\*br(-?\d+)$|^rhsxbr(-?\d+)$/;
   const rhsBracketFractionRegex = /^rhs\*\(\)(-?\d+)\/(\d+)$|^rhsx\(\)(-?\d+)\/(\d+)$|^rhs\*br(-?\d+)\/(\d+)$|^rhsxbr(-?\d+)\/(\d+)$/;
-  const fractionEqualityRegex = /^(\d+)\/(\d+)=(\d+)\/(\d+)$/;
+  const fractionEqualityRegex = /^(\d+)\/(\d+)=(\d+)\/(\d+)$/; // Standard n/m = p/q
+  const fractionToFractionRegex = /^(\d+)=(\d+)\/(\d+)$/; // Case n = p/q (treat as n/1 = p/q)
+  const fractionToIntegerRegex = /^(\d+)\/(\d+)=(\d+)$/; // Case n/m = p (treat as n/m = p/1)
   const lhsDivideRegex = /^lhs\/(\d+),\/(\d+)$|^lhs\/-(\d+),\/-(\d+)$/;
   const rhsDivideRegex = /^rhs\/(\d+),\/(\d+)$|^rhs\/-(\d+),\/-(\d+)$/;
 
@@ -134,32 +136,49 @@ if ((match = command.match(multiplyRegex))) {
     return false;
   }
 
-  // Fraction equality command
-  if ((match = command.match(fractionEqualityRegex))) {
-    const n = parseInt(match[1]);
-    const m = parseInt(match[2]);
-    const p = parseInt(match[3]);
-    const q = parseInt(match[4]);
-    
-    const checkAndUpdateFraction = (num, den) => {
-      if (num === n && den === m) {
-        const k = p / n;
-        if (k === q / m) {
-          return [p, q];
-        }
-      }
-      return [num, den];
-    };
+// Fraction equality command
+if ((match = command.match(fractionEqualityRegex))) {
+  const n = parseInt(match[1]);
+  const m = parseInt(match[2]);
+  const p = parseInt(match[3]);
+  const q = parseInt(match[4]);
 
-    [currentValues.a, currentValues.b] = checkAndUpdateFraction(currentValues.a, currentValues.b);
-    [currentValues.c, currentValues.d] = checkAndUpdateFraction(currentValues.c, currentValues.d);
-    [currentValues.e, currentValues.f] = checkAndUpdateFraction(currentValues.e, currentValues.f);
-    [currentValues.g, currentValues.h] = checkAndUpdateFraction(currentValues.g, currentValues.h);
-    [currentValues.i, currentValues.j] = checkAndUpdateFraction(currentValues.i, currentValues.j);
-    [currentValues.k, currentValues.l] = checkAndUpdateFraction(currentValues.k, currentValues.l);
-    
-    return true;
+// Function to check and update equivalent fractions
+const checkAndUpdateFraction = (num, den, n, m, p, q) => {
+  if (num === n && den === m) {
+    const k = p / n;
+    if (k === q / m) {
+      return [p, q];
+    }
   }
+  return [num, den];
+};
+
+  [currentValues.a, currentValues.b] = checkAndUpdateFraction(currentValues.a, currentValues.b, n, m, p, q);
+  [currentValues.c, currentValues.d] = checkAndUpdateFraction(currentValues.c, currentValues.d, n, m, p, q);
+  [currentValues.e, currentValues.f] = checkAndUpdateFraction(currentValues.e, currentValues.f, n, m, p, q);
+  [currentValues.g, currentValues.h] = checkAndUpdateFraction(currentValues.g, currentValues.h, n, m, p, q);
+  [currentValues.i, currentValues.j] = checkAndUpdateFraction(currentValues.i, currentValues.j, n, m, p, q);
+  [currentValues.k, currentValues.l] = checkAndUpdateFraction(currentValues.k, currentValues.l, n, m, p, q);
+
+  return true;
+}
+
+  // Case where 'n = p/q' is entered
+if ((match = command.match(fractionToFractionRegex))) {
+  const n = parseInt(match[1]);
+  const p = parseInt(match[2]);
+  const q = parseInt(match[3]);
+  return processCommand(`${n}/1=${p}/${q}`); // Convert to standard format
+}
+
+// Case where 'n/m = p' is entered
+if ((match = command.match(fractionToIntegerRegex))) {
+  const n = parseInt(match[1]);
+  const m = parseInt(match[2]);
+  const p = parseInt(match[3]);
+  return processCommand(`${n}/${m}=${p}/1`); // Convert to standard format
+}
 
   // LHS divide operations
   if ((match = command.match(lhsDivideRegex))) {
