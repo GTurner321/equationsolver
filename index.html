@@ -78,188 +78,31 @@
       color: #666;
       font-family: monospace;
     }
+    .initial-equation {
+      margin: 20px auto;
+      max-width: 800px;
+      text-align: left;
+      padding: 15px;
+      background-color: white;
+      border-left: 3px solid #4CAF50;
+    }
   </style>
 </head>
 <body>
   <button class="generate-btn" onclick="startGame()">Generate New Equation</button>
   <div id="original-constants" class="constants">Original constants will appear here...</div>
   <div id="simplified-constants" class="constants">Simplified constants will appear here...</div>
+  <div id="initial-equation" class="initial-equation"></div>
   <div id="history-container" class="history-container"></div>
   <div id="input-container"></div>
 
   <script>
-    let currentValues = {};
-
-    function getRandomInteger(includeZero = true) {
-      let value;
-      do {
-        value = Math.floor(Math.random() * 21) - 10;
-      } while (!includeZero && value === 0);
-      return value;
-    }
-
-    function gcd(a, b) {
-      return b === 0 ? Math.abs(a) : gcd(b, a % b);
-    }
-
-    function getRandomPair() {
-      let numerator = getRandomInteger(false);
-      let denominator = getRandomInteger(false);
-      if (denominator < 0) {
-        numerator = -numerator;
-        denominator = -denominator;
-      }
-      return [numerator, denominator];
-    }
-
-    function simplifyFraction(num, den) {
-      if (num === 0) return [0, 1];
-      const divisor = gcd(num, den);
-      let [newNum, newDen] = [num / divisor, den / divisor];
-      if (newDen < 0) {
-        newNum = -newNum;
-        newDen = -newDen;
-      }
-      return [newNum, newDen];
-    }
-
-    function generateBaseValues() {
-      let [a, b] = getRandomPair();
-      let [c, d] = getRandomPair();
-      let [e, f] = getRandomPair();
-      let [g, h] = getRandomPair();
-      let [i, j] = getRandomPair();
-      let [k, l] = getRandomPair();
-
-      // Ensure c/d ≠ i/j
-      while ((c * j) === (i * d)) {
-        [i, j] = getRandomPair();
-      }
-
-      currentValues = { a, b, c, d, e, f, g, h, i, j, k, l };
-      return currentValues;
-    }
-
-    function simplifyAllFractions(values) {
-      let simplified = {...values};
-      [simplified.a, simplified.b] = simplifyFraction(values.a, values.b);
-      [simplified.c, simplified.d] = simplifyFraction(values.c, values.d);
-      [simplified.e, simplified.f] = simplifyFraction(values.e, values.f);
-      [simplified.g, simplified.h] = simplifyFraction(values.g, values.h);
-      [simplified.i, simplified.j] = simplifyFraction(values.i, values.j);
-      [simplified.k, simplified.l] = simplifyFraction(values.k, values.l);
-      return simplified;
-    }
-
-    function evaluateFraction(num, den) {
-      return num / den;
-    }
-
-    function formatFraction(num, den, isCombined = false) {
-      if (num === 0) return "0";
-      
-      const isNegative = (num * den) < 0;
-      const absNum = Math.abs(num);
-      const absDen = Math.abs(den);
-      
-      // Handle special cases for denominator = ±1
-      if (absDen === 1 && !isCombined) {
-        return isNegative ? `-${absNum}` : `${absNum}`;
-      }
-      
-      // For all other cases, show negative sign outside fraction
-      return `${isNegative ? '-' : ''}\\frac{${absNum}}{${absDen}}`;
-    }
-
-    function formatXCoefficient(coeff) {
-      if (coeff === 0) return "0";
-      if (coeff === 1) return "x";
-      if (coeff === -1) return "-x";
-      return `${coeff}x`;
-    }
-
-    function formatCombinedNumerator(coeff, constant) {
-      let result = "";
-      if (coeff !== 0) {
-        result += formatXCoefficient(coeff);
-        if (constant > 0) result += "+";
-      }
-      if (constant !== 0 || coeff === 0) {
-        result += `${constant}`;
-      }
-      return result;
-    }
-
-    function formatExpression(outer1, outer2, c, d, e, f) {
-      if (c === 0 && e === 0) return "0";
-
-      const outerValue = evaluateFraction(outer1, outer2);
-      let result = "";
-
-      // Add outer fraction unless it's 1
-      if (outerValue === -1) {
-        result += "-";
-      } else if (outerValue !== 1) {
-        result += formatFraction(outer1, outer2);
-      }
-
-      // Handle case where denominators are equal
-      if (d === f) {
-        const numerator = formatCombinedNumerator(c, e);
-        const fraction = formatFraction(1, d, true).replace('1', numerator);
-        
-        // Add brackets if there's an outer term that's not 1
-        if (outerValue === -1) {
-          return `${result}\\left(${fraction}\\right)`;
-        }
-        if (outerValue !== 1) {
-          return `${result}\\left(${fraction}\\right)`;
-        }
-        return `${result}${fraction}`;
-      }
-
-      // Handle regular cases
-      if (c === 0) return `${result}${formatFraction(e, f)}`;
-      if (e === 0) return `${result}${formatFraction(c, d)}x`;
-
-      const isEFNegative = (e * f) < 0;
-      const fractionEF = formatFraction(Math.abs(e), Math.abs(f));
-      const sign = isEFNegative ? "-" : "+";
-      const cTerm = `${formatFraction(c, d)}x`;
-
-      const innerExpression = `${cTerm} ${sign} ${fractionEF}`;
-      
-      // Add brackets if there's an outer term that's not 1
-      if (outerValue === -1) {
-        return `${result}\\left(${innerExpression}\\right)`;
-      }
-      if (outerValue !== 1) {
-        return `${result}\\left(${innerExpression}\\right)`;
-      }
-      return `${result}${innerExpression}`;
-    }
-
-    function generateEquation() {
-      let { a, b, c, d, e, f, g, h, i, j, k, l } = currentValues;
-      
-      // Left side of equation
-      let leftExpression = formatExpression(a, b, c, d, e, f);
-
-      // Right side of equation
-      let rightExpression = formatExpression(g, h, i, j, k, l);
-
-      return `${leftExpression} = ${rightExpression}`;
-    }
-
-    function formatConstants(values) {
-      return `a=${values.a}, b=${values.b}, c=${values.c}, d=${values.d}, ` +
-             `e=${values.e}, f=${values.f}, g=${values.g}, h=${values.h}, ` +
-             `i=${values.i}, j=${values.j}, k=${values.k}, l=${values.l}`;
-    }
+    // [Previous functions remain the same until startGame()]
 
     function startGame() {
-      // Clear history
+      // Clear history and initial equation
       document.getElementById('history-container').innerHTML = '';
+      document.getElementById('initial-equation').innerHTML = '';
 
       // Generate and display original constants
       generateBaseValues();
@@ -271,21 +114,20 @@
       document.getElementById('simplified-constants').innerHTML = 
         `Simplified constants: ${formatConstants(currentValues)}`;
       
-      // Display equation
+      // Display initial equation
       const equation = generateEquation();
-      const historyEntry = document.createElement('div');
-      historyEntry.className = 'history-entry';
-      historyEntry.innerHTML = `
-        <div class="constants">Constants: ${formatConstants(currentValues)}</div>
+      document.getElementById('initial-equation').innerHTML = `
         <div class="equation">\\[ ${equation} \\]</div>
       `;
-      document.getElementById('history-container').appendChild(historyEntry);
 
       // Add new input box
       addInputBox();
 
       // Refresh MathJax rendering
-      MathJax.typesetPromise();
+      MathJax.typesetPromise().then(() => {
+        // Focus the input box after MathJax rendering is complete
+        document.getElementById('user-input')?.focus();
+      });
     }
 
     function addInputBox() {
@@ -297,7 +139,8 @@
       `;
 
       // Add event listener for user input
-      document.getElementById('user-input').addEventListener('keypress', function(e) {
+      const input = document.getElementById('user-input');
+      input.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
           const command = this.value.trim();
           const success = processCommand(command);
@@ -311,9 +154,9 @@
             <div class="equation">\\[ ${generateEquation()} \\]</div>
           `;
 
-          // Add to history container at the top
+          // Add to history container at the bottom
           const historyContainer = document.getElementById('history-container');
-          historyContainer.insertBefore(historyEntry, historyContainer.firstChild);
+          historyContainer.appendChild(historyEntry);
 
           // Remove the current input box
           inputContainer.innerHTML = '';
@@ -321,13 +164,18 @@
           // Add a new input box
           addInputBox();
 
-          // Scroll to the bottom of the page
-          window.scrollTo(0, document.body.scrollHeight);
-
           // Refresh MathJax rendering
-          MathJax.typesetPromise();
+          MathJax.typesetPromise().then(() => {
+            // Focus the new input box and scroll it into view
+            const newInput = document.getElementById('user-input');
+            newInput.focus();
+            newInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          });
         }
       });
+
+      // Auto-focus the input box
+      input.focus();
     }
 
     // Initial render
