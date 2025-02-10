@@ -271,15 +271,6 @@
       MathJax.typesetPromise();
     }
 
-    // Add event listener for user input
-    document.getElementById('user-input').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        // Process user input here
-        console.log('User input:', this.value);
-        // Clear input after processing
-        this.value = '';
-      }
-    });
   </script>
   <script src="game-commands.js"></script>
 </body>
