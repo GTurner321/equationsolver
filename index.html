@@ -177,7 +177,7 @@
       return result;
     }
 
-    function formatExpression(outer1, outer2, c, d, e, f) {
+   function formatExpression(outer1, outer2, c, d, e, f) {
   if (c === 0 && e === 0) return "0";
   
   const outerValue = evaluateFraction(outer1, outer2);
@@ -199,8 +199,8 @@
     const fraction = formatFraction(1, d, true).replace("1", numerator);
 
     // Always add brackets unless outer fraction evaluates to 1
-    if (outerValue === -1 || outerValue !== 1) {
-      return `${result}\\left(${fraction}\\right)`;
+    if (outerValue !== 1) {
+      return `${result}\\left(${fraction}\\right)`; // Corrected here
     }
     return `${result}${fraction}`;
   }
@@ -225,10 +225,11 @@
 
   // Always add brackets unless outer fraction evaluates to 1
   if (outerValue !== 1) {
-    return `${result}\\left(${innerExpression}\\right)`;
+    return `${result}\\left(${innerExpression}\\right)`; // Corrected here
   }
   return `${result}${innerExpression}`;
 }
+
 
     
     function generateEquation() {
