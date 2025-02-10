@@ -3,179 +3,276 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Equation Solver</title>
-  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      startup: {
+        ready: () => {
+          MathJax.startup.defaultReady();
+          MathJax.startup.promise.then(() => {
+            startGame();
+          });
+        }
+      }
+    };
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: lightblue;
+      font-family: 'Arial', sans-serif;
       text-align: center;
-    }
-    .equation {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 28px;
+      background-color: #f0f8ff;
       margin: 20px;
     }
-    .fraction {
-      display: inline-flex;
-      flex-direction: column;
-      align-items: center;
-      line-height: 1;
-      margin: 0 5px;
+    .equation {
+      font-size: 20px;
+      margin: 15px 0;
+      padding: 10px;
     }
-    .fraction .numerator {
-      border-bottom: 2px solid black;
-      padding: 2px 4px;
-    }
-    .fraction .denominator {
-      padding: 2px 4px;
-    }
-    .inline {
-      display: inline-flex;
-      align-items: center;
-      margin: 0 5px;
-    }
-    .input-box {
-      margin-top: 10px;
-      padding: 5px;
-      font-size: 16px;
-    }
-    .new-equation-button {
-      margin-top: 20px;
+    .generate-btn {
       padding: 10px 20px;
       font-size: 16px;
-      background-color: green;
+      background-color: #4CAF50;
       color: white;
       border: none;
       cursor: pointer;
+      margin: 20px 0;
     }
-    .small-op {
-      font-size: 18px; /* Smaller font size for operation symbols */
+    .generate-btn:hover {
+      background-color: #45a049;
     }
-    .large-op {
-      font-size: 32px; /* Larger font size for operation symbols */
+    .constants {
+      text-align: left;
+      margin: 20px auto;
+      max-width: 600px;
+      padding: 15px;
     }
-    .pacifico {
-      font-family: 'Pacifico', cursive;
-      vertical-align: middle; /* Adjust to match baseline alignment */
-      position: relative;
-      top: -3px; /* Raise the 'x' slightly (negative values go up) */
-      line-height: 1; /* Set a consistent height */
+    .input-box {
+      margin: 20px auto;
+      padding: 10px;
+      width: 80%;
+      max-width: 400px;
     }
-    .bracket {
-      font-size: 40px; /* Keep the larger font size */
-      position: relative; /* Enable relative positioning */
-      top: -3px; /* Shift the brackets upward (adjust the value as needed) */
-      line-height: 1; /* Consistent height for alignment */
+    .input-box input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
     }
   </style>
 </head>
 <body>
-  <button id="new-equation" class="new-equation-button">NEW EQUATION</button>
-  <div id="equation-container"></div>
+  <button class="generate-btn" onclick="startGame()">Generate New Equation</button>
+  <div id="original-constants" class="constants">Original constants will appear here...</div>
+  <div id="simplified-constants" class="constants">Simplified constants will appear here...</div>
+  <div id="equation-container" class="equation">Loading...</div>
+  <div class="input-box">
+    <input type="text" id="user-input" placeholder="Enter your command here">
+  </div>
+
   <script>
-    function getRandomNonZeroInteger() {
-      let num;
+    let currentValues = {};
+
+    function getRandomInteger(includeZero = true) {
+      let value;
       do {
-        num = Math.floor(Math.random() * 21) - 10;
-      } while (num === 0);
-      return num;
+        value = Math.floor(Math.random() * 21) - 10;
+      } while (!includeZero && value === 0);
+      return value;
     }
-    
+
     function gcd(a, b) {
       return b === 0 ? Math.abs(a) : gcd(b, a % b);
     }
-    
-    function getCoprimePair() {
-      let num, denom;
-      do {
-        num = getRandomNonZeroInteger();
-        denom = getRandomNonZeroInteger();
-      } while (gcd(num, denom) !== 1);
-      return [num, denom];
-    }
-    
-    function generateEquation() {
-      return {
-        a: getCoprimePair(),
-        b: getCoprimePair(),
-        c: getCoprimePair(),
-        d: getCoprimePair(),
-        e: getCoprimePair(),
-        f: getCoprimePair(),
-        g: getCoprimePair(),
-        h: getCoprimePair(),
-        i: getCoprimePair(),
-        j: getCoprimePair(),
-        k: getCoprimePair(),
-        l: getCoprimePair()
-      };
+
+    function getRandomPair() {
+      let numerator = getRandomInteger(false);
+      let denominator = getRandomInteger(false);
+      if (denominator < 0) {
+        numerator = -numerator;
+        denominator = -denominator;
+      }
+      return [numerator, denominator];
     }
 
-    function formatFraction(n, d, skipOne = true, isAfterX = false) {
-      let sign = n * d < 0 ? "−" : ""; // Determine the sign
-      n = Math.abs(n);
-      d = Math.abs(d);
+    function simplifyFraction(num, den) {
+      if (num === 0) return [0, 1];
+      const divisor = gcd(num, den);
+      let [newNum, newDen] = [num / divisor, den / divisor];
+      if (newDen < 0) {
+        newNum = -newNum;
+        newDen = -newDen;
+      }
+      return [newNum, newDen];
+    }
 
-      // Handle absolute value of 1
-      if (n === 1 && d === 1 && skipOne) {
-        return `
-          <span style="display: inline-block; vertical-align: middle; font-size: 18px;">
-            ${sign}
-          </span>`;
+    function generateBaseValues() {
+      let [a, b] = getRandomPair();
+      let [c, d] = getRandomPair();
+      let [e, f] = getRandomPair();
+      let [g, h] = getRandomPair();
+      let [i, j] = getRandomPair();
+      let [k, l] = getRandomPair();
+
+      // Ensure c/d ≠ i/j
+      while ((c * j) === (i * d)) {
+        [i, j] = getRandomPair();
       }
 
-      // If denominator is 1, display only the numerator
-        if (d === 1) {
-        return `
-        <span style="display: inline-block; vertical-align: middle; font-size: 22px;">
-        ${sign}
-        </span>
-        <span style="display: inline-block; vertical-align: middle; font-size: 28px;">
-        ${n}
-        </span>`;
+      currentValues = { a, b, c, d, e, f, g, h, i, j, k, l };
+      return currentValues;
+    }
+
+    function simplifyAllFractions(values) {
+      let simplified = {...values};
+      [simplified.a, simplified.b] = simplifyFraction(values.a, values.b);
+      [simplified.c, simplified.d] = simplifyFraction(values.c, values.d);
+      [simplified.e, simplified.f] = simplifyFraction(values.e, values.f);
+      [simplified.g, simplified.h] = simplifyFraction(values.g, values.h);
+      [simplified.i, simplified.j] = simplifyFraction(values.i, values.j);
+      [simplified.k, simplified.l] = simplifyFraction(values.k, values.l);
+      return simplified;
+    }
+
+    function evaluateFraction(num, den) {
+      return num / den;
+    }
+
+    function formatFraction(num, den, isCombined = false) {
+      if (num === 0) return "0";
+      
+      const isNegative = (num * den) < 0;
+      const absNum = Math.abs(num);
+      const absDen = Math.abs(den);
+      
+      // Handle special cases for denominator = ±1
+      if (absDen === 1 && !isCombined) {
+        return isNegative ? `-${absNum}` : `${absNum}`;
       }
       
-      // Default fraction display
-      return `
-        <span style="display: inline-flex; align-items: center; vertical-align: middle;">
-          <span class="${isAfterX ? 'large-op' : 'small-op'}">${sign}</span>
-          <span style="display: inline-flex; flex-direction: column; align-items: center;">
-            <span style="font-size: 18px; line-height: 1;">${n}</span>
-            <span style="border-top: 1px solid black; font-size: 18px; line-height: 1;">${d}</span>
-          </span>
-        </span>
-      `;
+      // For all other cases, show negative sign outside fraction
+      return `${isNegative ? '-' : ''}\\frac{${absNum}}{${absDen}}`;
     }
 
-    function formatEquation(vars) {
-      const { a, b, c, d, e, f, g, h, i, j, k, l } = vars;
-
-      // Format the equation
-      let equation = `
-        ${formatFraction(a[0], a[1])}
-        <span style="margin-right: 3px;"></span><span class="bracket">(</span><span style="margin-right: 2px;"></span>${formatFraction(c[0], c[1])}<span style="margin-right: 2px;"></span><span class="pacifico">x</span>&nbsp;${e[0] * e[1] < 0 ? "<span class='large-op'>−</span>&nbsp;" : "<span class='large-op'>+</span>&nbsp;"}${formatFraction(Math.abs(e[0]), Math.abs(e[1]), false, true)} <span style="margin-right: 2px;"></span><span class="bracket">)</span>&nbsp;=&nbsp;
-        ${formatFraction(g[0], g[1])}
-        <span style="margin-right: 3px;"></span><span class="bracket">(</span><span style="margin-right: 2px;"></span>${formatFraction(i[0], i[1])}<span style="margin-right: 2px;"></span><span class="pacifico">x</span>&nbsp;${k[0] * k[1] < 0 ? "<span class='large-op'>−</span>&nbsp;" : "<span class='large-op'>+</span>&nbsp;"}${formatFraction(Math.abs(k[0]), Math.abs(k[1]), false, true)} <span style="margin-right: 2px;"></span><span class="bracket">)</span>
-       `;
-
-      return equation;
-    }
-    
-    function renderEquation() {
-      const equationContainer = document.getElementById("equation-container");
-      equationContainer.innerHTML = "";
-      const equationDiv = document.createElement("div");
-      equationDiv.className = "equation";
-      const vars = generateEquation();
-      equationDiv.innerHTML = formatEquation(vars);
-      equationContainer.appendChild(equationDiv);
+    function formatXCoefficient(coeff) {
+      if (coeff === 0) return "0";
+      if (coeff === 1) return "x";
+      if (coeff === -1) return "-x";
+      return `${coeff}x`;
     }
 
-    document.getElementById("new-equation").addEventListener("click", renderEquation);
-    window.onload = renderEquation;
+    function formatCombinedNumerator(coeff, constant) {
+      let result = "";
+      if (coeff !== 0) {
+        result += formatXCoefficient(coeff);
+        if (constant > 0) result += "+";
+      }
+      if (constant !== 0 || coeff === 0) {
+        result += `${constant}`;
+      }
+      return result;
+    }
+
+    function formatExpression(outer1, outer2, c, d, e, f) {
+      if (c === 0 && e === 0) return "0";
+
+      const outerValue = evaluateFraction(outer1, outer2);
+      let result = "";
+
+      // Add outer fraction unless it's 1
+      if (outerValue === -1) {
+        result += "-";
+      } else if (outerValue !== 1) {
+        result += formatFraction(outer1, outer2);
+      }
+
+      // Handle case where denominators are equal
+      if (d === f) {
+        const numerator = formatCombinedNumerator(c, e);
+        const fraction = formatFraction(1, d, true).replace('1', numerator);
+        
+        // Add brackets if there's an outer term that's not 1
+        if (outerValue === -1) {
+          return `${result}\\left(${fraction}\\right)`;
+        }
+        if (outerValue !== 1) {
+          return `${result}\\left(${fraction}\\right)`;
+        }
+        return `${result}${fraction}`;
+      }
+
+      // Handle regular cases
+      if (c === 0) return `${result}${formatFraction(e, f)}`;
+      if (e === 0) return `${result}${formatFraction(c, d)}x`;
+
+      const isEFNegative = (e * f) < 0;
+      const fractionEF = formatFraction(Math.abs(e), Math.abs(f));
+      const sign = isEFNegative ? "-" : "+";
+      const cTerm = `${formatFraction(c, d)}x`;
+
+      const innerExpression = `${cTerm} ${sign} ${fractionEF}`;
+      
+      // Add brackets if there's an outer term that's not 1
+      if (outerValue === -1) {
+        return `${result}\\left(${innerExpression}\\right)`;
+      }
+      if (outerValue !== 1) {
+        return `${result}\\left(${innerExpression}\\right)`;
+      }
+      return `${result}${innerExpression}`;
+    }
+
+    function generateEquation() {
+      let { a, b, c, d, e, f, g, h, i, j, k, l } = currentValues;
+      
+      // Left side of equation
+      let leftExpression = formatExpression(a, b, c, d, e, f);
+
+      // Right side of equation
+      let rightExpression = formatExpression(g, h, i, j, k, l);
+
+      return `${leftExpression} = ${rightExpression}`;
+    }
+
+    function formatConstants(values) {
+      return `a=${values.a}, b=${values.b}, c=${values.c}, d=${values.d}, ` +
+             `e=${values.e}, f=${values.f}, g=${values.g}, h=${values.h}, ` +
+             `i=${values.i}, j=${values.j}, k=${values.k}, l=${values.l}`;
+    }
+
+    function startGame() {
+      // Generate and display original constants
+      generateBaseValues();
+      document.getElementById('original-constants').innerHTML = 
+        `Original constants: ${formatConstants(currentValues)}`;
+      
+      // Simplify and display simplified constants
+      currentValues = simplifyAllFractions(currentValues);
+      document.getElementById('simplified-constants').innerHTML = 
+        `Simplified constants: ${formatConstants(currentValues)}`;
+      
+      // Display equation
+      const equation = generateEquation();
+      document.getElementById('equation-container').innerHTML = `\\[ ${equation} \\]`;
+      
+      // Clear input box
+      document.getElementById('user-input').value = '';
+      
+      MathJax.typesetPromise();
+    }
+
+    // Add event listener for user input
+    document.getElementById('user-input').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        // Process user input here
+        console.log('User input:', this.value);
+        // Clear input after processing
+        this.value = '';
+      }
+    });
   </script>
 </body>
 </html>
