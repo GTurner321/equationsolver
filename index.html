@@ -244,19 +244,22 @@ function formatCombinedNumerator(coeff, constant) {
   }
   return `${result}${innerExpression}`;
 }
+
+function cleanupRendering(expression) {
+  return expression
+    .replace(/1x/g, 'x')
+    .replace(/-1x/g, '-x')
+    .replace(/\{1x\}/g, '{x}')
+    .replace(/\{-1x\}/g, '{-x}');
+}
+
+function generateEquation() {
+  let { a, b, c, d, e, f, g, h, i, j, k, l } = currentValues;
+  let leftExpression = formatExpression(a, b, c, d, e, f);
+  let rightExpression = formatExpression(g, h, i, j, k, l);
+  return cleanupRendering(`${leftExpression} = ${rightExpression}`);
+}
     
-    function generateEquation() {
-      let { a, b, c, d, e, f, g, h, i, j, k, l } = currentValues;
-      
-      // Left side of equation
-      let leftExpression = formatExpression(a, b, c, d, e, f);
-
-      // Right side of equation
-      let rightExpression = formatExpression(g, h, i, j, k, l);
-
-      return `${leftExpression} = ${rightExpression}`;
-    }
-
     function formatConstants(values) {
       return `a=${values.a}, b=${values.b}, c=${values.c}, d=${values.d}, ` +
              `e=${values.e}, f=${values.f}, g=${values.g}, h=${values.h}, ` +
