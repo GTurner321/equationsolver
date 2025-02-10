@@ -143,25 +143,21 @@
 
     function formatFraction(num, den, isCombined = false) {
   if (num === 0) return "0";
-
+  
   const isNegative = (num * den) < 0;
   const absNum = Math.abs(num);
   const absDen = Math.abs(den);
-
-  // Special cases for denominator = ±1
+  
+  // Handle special cases for denominator = ±1
   if (absDen === 1 && !isCombined) {
+    // If the denominator is 1 and it's not a combined fraction, omit the denominator
     return isNegative ? `-${absNum}` : `${absNum}`;
   }
-
-  // Special case for omitted denominator (when num/den evaluates to ±1)
-  if (absDen === 1 && isCombined && absNum === 1) {
-    return isNegative ? "-" : "";
-  }
-
-  // For all other cases, show negative sign outside the fraction
+  
+  // For all other cases, show negative sign outside fraction
   return `${isNegative ? '-' : ''}\\frac{${absNum}}{${absDen}}`;
 }
-    
+
     function formatXCoefficient(coeff) {
       if (coeff === 0) return "0";
       if (coeff === 1) return "x";
@@ -170,65 +166,72 @@
     }
 
     function formatCombinedNumerator(coeff, constant) {
-  let result = "";
-
-  // Handle coefficients
-  if (coeff !== 0) {
-    if (coeff === 1) {
-      result += "x";
-    } else if (coeff === -1) {
-      result += "-x";
-    } else {
-      result += `${coeff}x`;
+      let result = "";
+      if (coeff !== 0) {
+        result += formatXCoefficient(coeff);
+        if (constant > 0) result += "+";
+      }
+      if (constant !== 0 || coeff === 0) {
+        result += `${constant}`;
+      }
+      return result;
     }
-
-    if (constant > 0) result += "+";
-  }
-
-  // Add constant if necessary
-  if (constant !== 0 || coeff === 0) {
-    result += `${constant}`;
-  }
-
-  return result;
-}
 
     function formatExpression(outer1, outer2, c, d, e, f) {
   if (c === 0 && e === 0) return "0";
-
   const outerValue = evaluateFraction(outer1, outer2);
   let result = "";
-
-  // Add outer fraction unless it's 1 or -1
+  
+  // Add outer fraction unless it's 1
   if (outerValue === -1) {
     result += "-";
   } else if (outerValue !== 1) {
     result += formatFraction(outer1, outer2);
   }
-
-  // Case: combining fractions when denominators are equal
+  
+  // Handle case where denominators are equal
   if (d === f) {
     const numerator = formatCombinedNumerator(c, e);
-
-    // Special case: denominator = 1
+    
+    // If the denominator is 1, only print the numerator
     if (d === 1) {
       return `${result}${numerator}`;
     }
-
-    return `${result}\\frac{${numerator}}{${d}}`;
+    
+    const fraction = formatFraction(1, d, true).replace('1', numerator);
+    
+    // Add brackets if there's an outer term that's not 1
+    if (outerValue === -1 || outerValue !== 1) {
+      return `${result}\\left(${fraction}\\right)`;
+    }
+    return `${result}${fraction}`;
   }
-
-  // Case: regular fractions when denominators are not equal
-  const cTerm = c === 1 ? "x" : c === -1 ? "-x" : `${formatFraction(c, d)}x`;
-  const eTerm = formatFraction(e, f);
-
-  const innerExpression = `${cTerm} ${e >= 0 ? "+" : "-"} ${eTerm}`;
   
-  // Add brackets if outerValue isn't ±1
-  if (outerValue === -1 || outerValue !== 1) {
+  // Handle regular cases
+  if (c === 0) return `${result}${formatFraction(e, f)}`;
+  if (e === 0) return `${result}${formatFraction(c, d)}x`;
+  
+  const isEFNegative = (e * f) < 0;
+  const fractionEF = formatFraction(Math.abs(e), Math.abs(f));
+  const sign = isEFNegative ? "-" : "+";
+  
+  // Handle cases where c/d evaluates to ±1
+  let cTerm = '';
+  if (Math.abs(c) === 1 && d === 1) {
+    cTerm = c === -1 ? "-x" : "x";
+  } else {
+    cTerm = `${formatFraction(c, d)}x`;
+  }
+  
+  const innerExpression = `${cTerm} ${sign} ${fractionEF}`;
+  
+  // Add brackets if there's an outer term that's not 1
+  if (outerValue === -1) {
     return `${result}\\left(${innerExpression}\\right)`;
   }
-
+  if (outerValue !== 1) {
+    return `${result}\\left(${innerExpression}\\right)`;
+  }
   return `${result}${innerExpression}`;
 }
     
