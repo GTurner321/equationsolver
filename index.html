@@ -179,61 +179,57 @@
 
     function formatExpression(outer1, outer2, c, d, e, f) {
   if (c === 0 && e === 0) return "0";
+  
   const outerValue = evaluateFraction(outer1, outer2);
   let result = "";
-  
-  // Add outer fraction unless it's 1
+
+  // Add outer fraction if it's not ±1
   if (outerValue === -1) {
     result += "-";
   } else if (outerValue !== 1) {
     result += formatFraction(outer1, outer2);
   }
-  
+
   // Handle case where denominators are equal
   if (d === f) {
     const numerator = formatCombinedNumerator(c, e);
-    
-    // If the denominator is 1, only print the numerator
     if (d === 1) {
       return `${result}${numerator}`;
     }
-    
-    const fraction = formatFraction(1, d, true).replace('1', numerator);
-    
-    // Add brackets if there's an outer term that's not 1
+    const fraction = formatFraction(1, d, true).replace("1", numerator);
+
+    // Always add brackets unless outer fraction evaluates to 1
     if (outerValue === -1 || outerValue !== 1) {
       return `${result}\\left(${fraction}\\right)`;
     }
     return `${result}${fraction}`;
   }
-  
+
   // Handle regular cases
   if (c === 0) return `${result}${formatFraction(e, f)}`;
   if (e === 0) return `${result}${formatFraction(c, d)}x`;
-  
-  const isEFNegative = (e * f) < 0;
+
+  const isEFNegative = e * f < 0;
   const fractionEF = formatFraction(Math.abs(e), Math.abs(f));
   const sign = isEFNegative ? "-" : "+";
-  
+
   // Handle cases where c/d evaluates to ±1
-  let cTerm = '';
+  let cTerm = "";
   if (Math.abs(c) === 1 && d === 1) {
     cTerm = c === -1 ? "-x" : "x";
   } else {
     cTerm = `${formatFraction(c, d)}x`;
   }
-  
+
   const innerExpression = `${cTerm} ${sign} ${fractionEF}`;
-  
-  // Add brackets if there's an outer term that's not 1
-  if (outerValue === -1) {
-    return `${result}\\left(${innerExpression}\\right)`;
-  }
+
+  // Always add brackets unless outer fraction evaluates to 1
   if (outerValue !== 1) {
     return `${result}\\left(${innerExpression}\\right)`;
   }
   return `${result}${innerExpression}`;
 }
+
     
     function generateEquation() {
       let { a, b, c, d, e, f, g, h, i, j, k, l } = currentValues;
