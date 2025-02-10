@@ -194,13 +194,13 @@
   if (d === f) {
     const numerator = formatCombinedNumerator(c, e);
     if (d === 1) {
-      return `${result}${numerator}`;
+      return outerValue === 1 ? numerator : `${result}\\left(${numerator}\\right)`;
     }
     const fraction = formatFraction(1, d, true).replace("1", numerator);
 
     // Always add brackets unless outer fraction evaluates to 1
     if (outerValue !== 1) {
-      return `${result}\\left(${fraction}\\right)`; // Corrected here
+      return `${result}\\left(${fraction}\\right)`;
     }
     return `${result}${fraction}`;
   }
@@ -223,14 +223,12 @@
 
   const innerExpression = `${cTerm} ${sign} ${fractionEF}`;
 
-  // Always add brackets unless outer fraction evaluates to 1
+  // Wrap inner expression in brackets unless outer fraction evaluates to ±1
   if (outerValue !== 1) {
-    return `${result}\\left(${innerExpression}\\right)`; // Corrected here
+    return `${result}\\left(${innerExpression}\\right)`;
   }
   return `${result}${innerExpression}`;
 }
-
-
     
     function generateEquation() {
       let { a, b, c, d, e, f, g, h, i, j, k, l } = currentValues;
