@@ -50,35 +50,31 @@ function processPhase1Command(command, currentValues) {
       const hcfHN = hcf(currentValues.h, Math.abs(n));
       const multiplier = n / hcfHN;
       currentValues.h = currentValues.h / hcfHN;
-      currentValues.c = currentValues.c * multiplier;
-      currentValues.e = currentValues.e * multiplier;
+      currentValues.g = currentValues.g * multiplier;
+      currentValues.c = currentValues.c * n;
+      currentValues.e = currentValues.e * n;
     }
     // Case 2: Right side is 1, left side isn't 1
     else if (rightSideValue === 1 && leftSideValue !== 1) {
       const hcfBN = hcf(currentValues.b, Math.abs(n));
       const multiplier = n / hcfBN;
       currentValues.b = currentValues.b / hcfBN;
-      currentValues.i = currentValues.i * multiplier;
-      currentValues.k = currentValues.k * multiplier;
+      currentValues.a = currentValues.a * multiplier;
+      currentValues.i = currentValues.i * n;
+      currentValues.k = currentValues.k * n;
     }
     // Case 3: Neither side is 1
     else if (leftSideValue !== 1 && rightSideValue !== 1) {
       // Handle left side
       if (isFactor(currentValues.b, Math.abs(n))) {
-        currentValues.b = currentValues.b / Math.abs(n);
-        if (n < 0) {
-          currentValues.a = -currentValues.a;
-        }
+        currentValues.b = currentValues.b / n;
       } else {
         currentValues.a = currentValues.a * n;
       }
       
       // Handle right side
       if (isFactor(currentValues.h, Math.abs(n))) {
-        currentValues.h = currentValues.h / Math.abs(n);
-        if (n < 0) {
-          currentValues.g = -currentValues.g;
-        }
+        currentValues.h = currentValues.h / n;
       } else {
         currentValues.g = currentValues.g * n;
       }
@@ -100,42 +96,38 @@ function processPhase1Command(command, currentValues) {
       const hcfGN = hcf(currentValues.g, Math.abs(n));
       const multiplier = n / hcfGN;
       currentValues.g = currentValues.g / hcfGN;
-      currentValues.d = currentValues.d * multiplier;
-      currentValues.f = currentValues.f * multiplier;
+      currentValues.h = currentValues.h * multiplier;
+      currentValues.d = currentValues.d * n;
+      currentValues.f = currentValues.f * n;
     }
     // Case 2: Right side is 1, left side isn't 1
     else if (rightSideValue === 1 && leftSideValue !== 1) {
       const hcfAN = hcf(currentValues.a, Math.abs(n));
       const multiplier = n / hcfAN;
       currentValues.a = currentValues.a / hcfAN;
-      currentValues.j = currentValues.j * multiplier;
-      currentValues.l = currentValues.l * multiplier;
+      currentValues.b = currentValues.b * multiplier;
+      currentValues.j = currentValues.j * n;
+      currentValues.l = currentValues.l * n;
     }
     // Case 3: Neither side is 1
     else if (leftSideValue !== 1 && rightSideValue !== 1) {
       // Handle left side
       if (isFactor(currentValues.a, Math.abs(n))) {
-        currentValues.a = currentValues.a / Math.abs(n);
-        if (n < 0) {
-          currentValues.b = -currentValues.b;
-        }
+        currentValues.a = currentValues.a / n;
       } else {
         currentValues.b = currentValues.b * n;
       }
       
       // Handle right side
       if (isFactor(currentValues.g, Math.abs(n))) {
-        currentValues.g = currentValues.g / Math.abs(n);
-        if (n < 0) {
-          currentValues.h = -currentValues.h;
-        }
+        currentValues.g = currentValues.g / n;
       } else {
         currentValues.h = currentValues.h * n;
       }
     }
     return true;
   }
-
+  
   // Multiply fraction command
   if ((match = command.match(commandPatterns.multiplyFraction))) {
     const n = parseInt(match[1] || match[3]);
