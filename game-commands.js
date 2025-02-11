@@ -1,3 +1,110 @@
+// Helper function to check if two fractions are equivalent with a ratio
+function areEquivalentFractions(n1, d1, n2, d2) {
+  // Convert to absolute values for comparison
+  const absN1 = Math.abs(n1);
+  const absD1 = Math.abs(d1);
+  const absN2 = Math.abs(n2);
+  const absD2 = Math.abs(d2);
+  
+  // Check if there exists an r where n1*r = n2 and d1*r = d2
+  const r1 = absN2 / absN1;
+  const r2 = absD2 / absD1;
+  
+  return Math.abs(r1 - r2) < 1e-10; // Using small epsilon for float comparison
+}
+
+// Helper function to update fraction if equivalent
+function updateIfEquivalent(num, den, n, m, p, q) {
+  if (areEquivalentFractions(Math.abs(num), Math.abs(den), n, m)) {
+    // Preserve original sign when updating
+    const sign = Math.sign(num);
+    return [sign * p, q];
+  }
+  return [num, den];
+}
+
+// Main fraction equality command processing
+function processFractionEquality(command) {
+  // Handle all formats of fraction equality commands
+  const standardFormat = /^(-?)(\d+)\/(-?)(\d+)=(-?)(\d+)\/(-?)(\d+)$/;
+  const fractionToIntFormat = /^(-?)(\d+)\/(-?)(\d+)=(-?)(\d+)$/;
+  const intToFractionFormat = /^(-?)(\d+)=(-?)(\d+)\/(-?)(\d+)$/;
+  
+  let match;
+  
+  if ((match = command.match(standardFormat))) {
+    // Extract all components including signs
+    const [, sign1, n, sign2, m, sign3, p, sign4, q] = match;
+    
+    // Convert strings to numbers
+    const nVal = parseInt(n);
+    const mVal = parseInt(m);
+    const pVal = parseInt(p);
+    const qVal = parseInt(q);
+    
+    // Calculate effective signs
+    const leftNegative = (sign1 === '-') !== (sign2 === '-');
+    const rightNegative = (sign3 === '-') !== (sign4 === '-');
+    
+    // Apply the transformation to all fraction pairs
+    [currentValues.a, currentValues.b] = updateIfEquivalent(
+      currentValues.a, currentValues.b, 
+      leftNegative ? -nVal : nVal, mVal,
+      rightNegative ? -pVal : pVal, qVal
+    );
+    
+    [currentValues.c, currentValues.d] = updateIfEquivalent(
+      currentValues.c, currentValues.d,
+      leftNegative ? -nVal : nVal, mVal,
+      rightNegative ? -pVal : pVal, qVal
+    );
+    
+    [currentValues.e, currentValues.f] = updateIfEquivalent(
+      currentValues.e, currentValues.f,
+      leftNegative ? -nVal : nVal, mVal,
+      rightNegative ? -pVal : pVal, qVal
+    );
+    
+    [currentValues.g, currentValues.h] = updateIfEquivalent(
+      currentValues.g, currentValues.h,
+      leftNegative ? -nVal : nVal, mVal,
+      rightNegative ? -pVal : pVal, qVal
+    );
+    
+    [currentValues.i, currentValues.j] = updateIfEquivalent(
+      currentValues.i, currentValues.j,
+      leftNegative ? -nVal : nVal, mVal,
+      rightNegative ? -pVal : pVal, qVal
+    );
+    
+    [currentValues.k, currentValues.l] = updateIfEquivalent(
+      currentValues.k, currentValues.l,
+      leftNegative ? -nVal : nVal, mVal,
+      rightNegative ? -pVal : pVal, qVal
+    );
+    
+    return true;
+  }
+  
+  // Handle n/m=p format (convert to n/m=p/1)
+  else if ((match = command.match(fractionToIntFormat))) {
+    const [, sign1, n, sign2, m, sign3, p] = match;
+    return processFractionEquality(
+      `${sign1}${n}/${sign2}${m}=${sign3}${p}/1`
+    );
+  }
+  
+  // Handle n=p/q format (convert to n/1=p/q)
+  else if ((match = command.match(intToFractionFormat))) {
+    const [, sign1, n, sign2, p, sign3, q] = match;
+    return processFractionEquality(
+      `${sign1}${n}/1=${sign2}${p}/${sign3}${q}`
+    );
+  }
+  
+  return false;
+}
+
 // Command processing functions
 function processCommand(command) {
   // First check if we need different command sets
@@ -13,6 +120,11 @@ function processCommand(command) {
 }
 
 function processBracketCommand(command) {
+  // Try fraction equality command first
+  if (processFractionEquality(command)) {
+    return true;
+  }
+
   // Regular expressions for command matching
   const multiplyRegex = /^\*(-?\d+)$|^x(-?\d+)$/;
   const multiplyFractionRegex = /^\*(-?\d+)\/(\d+)$|^x(-?\d+)\/(\d+)$/;
@@ -21,9 +133,6 @@ function processBracketCommand(command) {
   const lhsBracketFractionRegex = /^lhs\*\(\)(-?\d+)\/(\d+)$|^lhsx\(\)(-?\d+)\/(\d+)$|^lhs\*br(-?\d+)\/(\d+)$|^lhsxbr(-?\d+)\/(\d+)$/;
   const rhsBracketRegex = /^rhs\*\(\)(-?\d+)$|^rhsx\(\)(-?\d+)$|^rhs\*br(-?\d+)$|^rhsxbr(-?\d+)$/;
   const rhsBracketFractionRegex = /^rhs\*\(\)(-?\d+)\/(\d+)$|^rhsx\(\)(-?\d+)\/(\d+)$|^rhs\*br(-?\d+)\/(\d+)$|^rhsxbr(-?\d+)\/(\d+)$/;
-  const fractionEqualityRegex = /^(\d+)\/(\d+)=(\d+)\/(\d+)$/; // Standard n/m = p/q
-  const fractionToFractionRegex = /^(\d+)=(\d+)\/(\d+)$/; // Case n = p/q (treat as n/1 = p/q)
-  const fractionToIntegerRegex = /^(\d+)\/(\d+)=(\d+)$/; // Case n/m = p (treat as n/m = p/1)
   const lhsDivideRegex = /^lhs\/(\d+),\/(\d+)$|^lhs\/-(\d+),\/-(\d+)$/;
   const rhsDivideRegex = /^rhs\/(\d+),\/(\d+)$|^rhs\/-(\d+),\/-(\d+)$/;
 
