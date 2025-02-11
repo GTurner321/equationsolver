@@ -39,11 +39,11 @@ function processPhase2Command(command, currentValues) {
       return [num * absN, den];
     } else if (operation === 'divide') {
       const absN = Math.abs(n);
-      const gcd = findGCD(absN, Math.abs(num));
+      const gcd = findGCD(Math.abs(num), absN);
       if (gcd > 1) {
-        return [num / gcd, den * (absN / gcd)];
+        return [num / gcd, den * (n / gcd)];
       }
-      return [num, den * absN];
+      return [num, den * n];
     }
     return [num, den];
   }
@@ -190,3 +190,6 @@ function processPhase2Command(command, currentValues) {
 
   return false;
 }
+
+// Export for use in main command processor
+window.processPhase2Command = processPhase2Command;
