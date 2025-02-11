@@ -8,8 +8,8 @@ function processPhase1Command(command, currentValues) {
   // Regular expressions for command matching
   const commandPatterns = {
     multiply: /^\*(-?\d+)$|^x(-?\d+)$/,
-    multiplyFraction: /^\*(-?\d+)\/(\d+)$|^x(-?\d+)\/(\d+)$/,
     divide: /^\/(-?\d+)$/,
+    multiplyFraction: /^\*(-?\d+)\/(\d+)$|^x(-?\d+)\/(\d+)$/,
     lhsBracket: /^lhs\*\(\)(-?\d+)$|^lhsx\(\)(-?\d+)$|^lhs\*br(-?\d+)$|^lhsxbr(-?\d+)$/,
     lhsBracketFraction: /^lhs\*\(\)(-?\d+)\/(\d+)$|^lhsx\(\)(-?\d+)\/(\d+)$|^lhs\*br(-?\d+)\/(\d+)$|^lhsxbr(-?\d+)\/(\d+)$/,
     rhsBracket: /^rhs\*\(\)(-?\d+)$|^rhsx\(\)(-?\d+)$|^rhs\*br(-?\d+)$|^rhsxbr(-?\d+)$/,
@@ -20,22 +20,119 @@ function processPhase1Command(command, currentValues) {
 
   let match;
 
-  // Multiply command
-  if ((match = command.match(commandPatterns.multiply))) {
-    const n = parseInt(match[1] || match[2]);
-    
-    if (currentValues.b % n === 0) {
-      currentValues.b /= n;
-    } else {
-      currentValues.a *= n;
+  // Helper functions
+  function isFactor(number, factorCandidate) {
+    return number % factorCandidate === 0;
+  }
+
+  function hcf(a, b) {
+    a = Math.abs(a);
+    b = Math.abs(b);
+    while (b !== 0) {
+      const temp = b;
+      b = a % b;
+      a = temp;
     }
-    
-    if (currentValues.h % n === 0) {
-      currentValues.h /= n;
-    } else {
-      currentValues.g *= n;
+    return a;
+  }
+
+  // Try basic multiply command
+  if (command.match(commandPatterns.multiply)) {
+    const match = command.match(/^\*(-?\d+)$/) || command.match(/^x(-?\d+)$/);
+    const n = parseInt(match[1]);
+    if (n === 0) return false;
+
+    const leftSideValue = evaluateFraction(currentValues.a, currentValues.b);
+    const rightSideValue = evaluateFraction(currentValues.g, currentValues.h);
+
+    // Case 1: Left side is 1, right side isn't 1
+    if (leftSideValue === 1 && rightSideValue !== 1) {
+      const hcfHN = hcf(currentValues.h, Math.abs(n));
+      const multiplier = n / hcfHN;
+      currentValues.h = currentValues.h / hcfHN;
+      currentValues.c = currentValues.c * multiplier;
+      currentValues.e = currentValues.e * multiplier;
     }
-    
+    // Case 2: Right side is 1, left side isn't 1
+    else if (rightSideValue === 1 && leftSideValue !== 1) {
+      const hcfBN = hcf(currentValues.b, Math.abs(n));
+      const multiplier = n / hcfBN;
+      currentValues.b = currentValues.b / hcfBN;
+      currentValues.i = currentValues.i * multiplier;
+      currentValues.k = currentValues.k * multiplier;
+    }
+    // Case 3: Neither side is 1
+    else if (leftSideValue !== 1 && rightSideValue !== 1) {
+      // Handle left side
+      if (isFactor(currentValues.b, Math.abs(n))) {
+        currentValues.b = currentValues.b / Math.abs(n);
+        if (n < 0) {
+          currentValues.a = -currentValues.a;
+        }
+      } else {
+        currentValues.a = currentValues.a * n;
+      }
+      
+      // Handle right side
+      if (isFactor(currentValues.h, Math.abs(n))) {
+        currentValues.h = currentValues.h / Math.abs(n);
+        if (n < 0) {
+          currentValues.g = -currentValues.g;
+        }
+      } else {
+        currentValues.g = currentValues.g * n;
+      }
+    }
+    return true;
+  }
+
+  // Try basic divide command
+  if (command.match(commandPatterns.divide)) {
+    const match = command.match(/^\/(-?\d+)$/);
+    const n = parseInt(match[1]);
+    if (n === 0) return false;
+
+    const leftSideValue = evaluateFraction(currentValues.a, currentValues.b);
+    const rightSideValue = evaluateFraction(currentValues.g, currentValues.h);
+
+    // Case 1: Left side is 1, right side isn't 1
+    if (leftSideValue === 1 && rightSideValue !== 1) {
+      const hcfGN = hcf(currentValues.g, Math.abs(n));
+      const multiplier = n / hcfGN;
+      currentValues.g = currentValues.g / hcfGN;
+      currentValues.d = currentValues.d * multiplier;
+      currentValues.f = currentValues.f * multiplier;
+    }
+    // Case 2: Right side is 1, left side isn't 1
+    else if (rightSideValue === 1 && leftSideValue !== 1) {
+      const hcfAN = hcf(currentValues.a, Math.abs(n));
+      const multiplier = n / hcfAN;
+      currentValues.a = currentValues.a / hcfAN;
+      currentValues.j = currentValues.j * multiplier;
+      currentValues.l = currentValues.l * multiplier;
+    }
+    // Case 3: Neither side is 1
+    else if (leftSideValue !== 1 && rightSideValue !== 1) {
+      // Handle left side
+      if (isFactor(currentValues.a, Math.abs(n))) {
+        currentValues.a = currentValues.a / Math.abs(n);
+        if (n < 0) {
+          currentValues.b = -currentValues.b;
+        }
+      } else {
+        currentValues.b = currentValues.b * n;
+      }
+      
+      // Handle right side
+      if (isFactor(currentValues.g, Math.abs(n))) {
+        currentValues.g = currentValues.g / Math.abs(n);
+        if (n < 0) {
+          currentValues.h = -currentValues.h;
+        }
+      } else {
+        currentValues.h = currentValues.h * n;
+      }
+    }
     return true;
   }
 
@@ -51,22 +148,7 @@ function processPhase1Command(command, currentValues) {
     currentValues.h *= m;
     return true;
   }
-
-  // Divide command
-  if ((match = command.match(commandPatterns.divide))) {
-    const n = parseInt(match[1]);
-    if (n === 0) return false; // Prevent division by zero
-    
-    for (const [num, den] of [['a', 'b'], ['g', 'h']]) {
-      if (currentValues[num] % n === 0) {
-        currentValues[num] /= n;
-      } else {
-        currentValues[den] *= n;
-      }
-    }
-    return true;
-  }
-
+  
   // Process bracket operations
   function processBracketOp(side, match, isRhs) {
     const n = parseInt(match[1] || match[2] || match[3] || match[4]);
@@ -148,3 +230,6 @@ function processPhase1Command(command, currentValues) {
 
   return false;
 }
+
+// Export for use in main command processor
+window.processPhase1Command = processPhase1Command;
