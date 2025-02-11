@@ -320,14 +320,13 @@
     }
 
     function addInputBox() {
-      const inputContainer = document.getElementById('input-container');
-      inputContainer.innerHTML = `
-        <div class="input-box">
-          <input type="text" id="user-input" placeholder="Enter your command here">
-        </div>
-      `;
-
-      const input = document.getElementById('user-input');
+  const inputContainer = document.getElementById('input-container');
+  inputContainer.innerHTML = `
+    <div class="input-box">
+      <input type="text" id="user-input" value="" placeholder="Enter your command here">
+    </div>
+  `;
+          const input = document.getElementById('user-input');
       input.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
           const command = this.value.trim();
@@ -344,11 +343,7 @@
               this.value = '';
             }
 
-            const equation = generateEquation();
-            document.getElementById('initial-equation').innerHTML = `
-              <div class="equation">${equation}</div>
-            `;
-
+           
             MathJax.typesetPromise().then(() => {
               const newInput = document.getElementById('user-input');
               if (newInput) {
