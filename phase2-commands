@@ -1,6 +1,203 @@
 // phase2-commands.js
+
 function processPhase2Command(command, currentValues) {
   // Try fraction equality command first (from common-commands.js)
   if (processFractionEquality(command, currentValues)) {
     return true;
   }
+
+  // Regular expressions for command matching
+  const multiplyRegex = /^\*(-?\d+)$|^x(-?\d+)$/;
+  const multiplyFractionRegex = /^\*(-?\d+)\/(\d+)$|^x(-?\d+)\/(\d+)$/;
+  const divideRegex = /^\/(-?\d+)$/;
+  const addConstantRegex = /^\+(\d+)\/(\d+)$|^\+(\d+)$/;
+  const subtractConstantRegex = /^-(\d+)\/(\d+)$|^-(\d+)$/;
+  const addXTermRegex = /^\+(\d+)\/(\d+)x$|^\+(\d+)x$/;
+  const subtractXTermRegex = /^-(\d+)\/(\d+)x$|^-(\d+)x$/;
+  const lhsDivideRegex = /^lhs\/(-?\d+),\/(-?\d+)$/;
+  const rhsDivideRegex = /^rhs\/(-?\d+),\/(-?\d+)$/;
+
+  let match;
+
+  // Multiply command (*n or xn)
+  if ((match = command.match(multiplyRegex))) {
+    const n = parseInt(match[1] || match[2]);
+    
+    // Helper function to process multiplication
+    function multiplyFraction(num, den, n) {
+      const absN = Math.abs(n);
+      const gcd = findGCD(absN, den);
+      if (gcd > 1) {
+        return [num * (absN / gcd), den / gcd];
+      }
+      return [num * absN, den];
+    }
+    
+    // Apply to all fractions
+    [currentValues.c, currentValues.d] = multiplyFraction(currentValues.c, currentValues.d, n);
+    [currentValues.e, currentValues.f] = multiplyFraction(currentValues.e, currentValues.f, n);
+    [currentValues.i, currentValues.j] = multiplyFraction(currentValues.i, currentValues.j, n);
+    [currentValues.k, currentValues.l] = multiplyFraction(currentValues.k, currentValues.l, n);
+    
+    return true;
+  }
+
+  // Multiply fraction command (*n/m or xn/m)
+  if ((match = command.match(multiplyFractionRegex))) {
+    const n = parseInt(match[1] || match[3]);
+    const m = parseInt(match[2] || match[4]);
+    
+    // Apply to all numerators and denominators
+    currentValues.c *= n;
+    currentValues.d *= m;
+    currentValues.e *= n;
+    currentValues.f *= m;
+    currentValues.i *= n;
+    currentValues.j *= m;
+    currentValues.k *= n;
+    currentValues.l *= m;
+    
+    return true;
+  }
+
+  // Divide command (/n)
+  if ((match = command.match(divideRegex))) {
+    const n = parseInt(match[1]);
+    
+    // Helper function to process division
+    function divideFraction(num, den, n) {
+      const absN = Math.abs(n);
+      const gcd = findGCD(absN, Math.abs(num));
+      if (gcd > 1) {
+        return [num / gcd, den * (absN / gcd)];
+      }
+      return [num, den * absN];
+    }
+    
+    // Apply to all fractions
+    [currentValues.c, currentValues.d] = divideFraction(currentValues.c, currentValues.d, n);
+    [currentValues.e, currentValues.f] = divideFraction(currentValues.e, currentValues.f, n);
+    [currentValues.i, currentValues.j] = divideFraction(currentValues.i, currentValues.j, n);
+    [currentValues.k, currentValues.l] = divideFraction(currentValues.k, currentValues.l, n);
+    
+    return true;
+  }
+
+  // Add constant term (+n/m or +n)
+  if ((match = command.match(addConstantRegex))) {
+    const n = parseInt(match[1] || match[3]);
+    const m = parseInt(match[2] || 1);
+    
+    // Update constant terms
+    currentValues.e = currentValues.e * m + currentValues.f * n;
+    currentValues.f *= m;
+    currentValues.k = currentValues.k * m + currentValues.l * n;
+    currentValues.l *= m;
+    
+    return true;
+  }
+
+  // Subtract constant term (-n/m or -n)
+  if ((match = command.match(subtractConstantRegex))) {
+    const n = parseInt(match[1] || match[3]);
+    const m = parseInt(match[2] || 1);
+    
+    // Update constant terms
+    currentValues.e = currentValues.e * m - currentValues.f * n;
+    currentValues.f *= m;
+    currentValues.k = currentValues.k * m - currentValues.l * n;
+    currentValues.l *= m;
+    
+    return true;
+  }
+
+  // Add x term (+n/mx or +nx)
+  if ((match = command.match(addXTermRegex))) {
+    const n = parseInt(match[1] || match[3]);
+    const m = parseInt(match[2] || 1);
+    
+    // Update x coefficients
+    currentValues.c = currentValues.c * m + currentValues.d * n;
+    currentValues.d *= m;
+    currentValues.i = currentValues.i * m + currentValues.j * n;
+    currentValues.j *= m;
+    
+    return true;
+  }
+
+  // Subtract x term (-n/mx or -nx)
+  if ((match = command.match(subtractXTermRegex))) {
+    const n = parseInt(match[1] || match[3]);
+    const m = parseInt(match[2] || 1);
+    
+    // Update x coefficients
+    currentValues.c = currentValues.c * m - currentValues.d * n;
+    currentValues.d *= m;
+    currentValues.i = currentValues.i * m - currentValues.j * n;
+    currentValues.j *= m;
+    
+    return true;
+  }
+
+  // LHS divide operations
+  if ((match = command.match(lhsDivideRegex))) {
+    const n = Math.abs(parseInt(match[1]));
+    const isValid = 
+      (currentValues.c % n === 0 && currentValues.d % n === 0 && currentValues.e === 0) ||
+      (currentValues.e % n === 0 && currentValues.f % n === 0 && currentValues.c === 0) ||
+      (currentValues.c % n === 0 && currentValues.d % n === 0 && 
+       currentValues.e % n === 0 && currentValues.f % n === 0);
+    
+    if (isValid) {
+      currentValues.c /= n;
+      currentValues.d /= n;
+      currentValues.e /= n;
+      currentValues.f /= n;
+      
+      // Apply negative if needed
+      if (match[1].startsWith('-')) {
+        currentValues.c *= -1;
+        currentValues.e *= -1;
+      }
+      return true;
+    }
+    return false;
+  }
+
+  // RHS divide operations
+  if ((match = command.match(rhsDivideRegex))) {
+    const n = Math.abs(parseInt(match[1]));
+    const isValid = 
+      (currentValues.i % n === 0 && currentValues.j % n === 0 && currentValues.k === 0) ||
+      (currentValues.k % n === 0 && currentValues.l % n === 0 && currentValues.i === 0) ||
+      (currentValues.i % n === 0 && currentValues.j % n === 0 && 
+       currentValues.k % n === 0 && currentValues.l % n === 0);
+    
+    if (isValid) {
+      currentValues.i /= n;
+      currentValues.j /= n;
+      currentValues.k /= n;
+      currentValues.l /= n;
+      
+      // Apply negative if needed
+      if (match[1].startsWith('-')) {
+        currentValues.i *= -1;
+        currentValues.k *= -1;
+      }
+      return true;
+    }
+    return false;
+  }
+
+  return false;
+}
+
+// Helper function to find GCD
+function findGCD(a, b) {
+  a = Math.abs(a);
+  b = Math.abs(b);
+  while (b) {
+    [a, b] = [b, a % b];
+  }
+  return a;
+}
