@@ -1,4 +1,3 @@
-// game-end.js
 function checkWinCondition(values) {
   // Check if we're in phase 2 first
   const isPhase2 = evaluateFraction(values.a, values.b) === 1 && 
@@ -50,27 +49,45 @@ function formatSolution(num, den) {
   // Handle special cases
   if (den === 0) return "undefined";
   if (num === 0) return "0";
-  if (den === 1) return num.toString();
   
-  // Format as fraction using MathJax
-  return `\\frac{${num}}{${den}}`;
+  // For negative fractions, make numerator negative and denominator positive
+  let isNegative = (num * den) < 0;
+  num = Math.abs(num);
+  den = Math.abs(den);
+  
+  // If denominator is 1, just return the number
+  if (den === 1) {
+    return isNegative ? `-${num}` : `${num}`;
+  }
+  
+  // Check if it's an improper fraction
+  if (num > den) {
+    const wholePart = Math.floor(num / den);
+    const remainder = num % den;
+    
+    // If there's no remainder, just return the whole number
+    if (remainder === 0) {
+      return isNegative ? `-${wholePart}` : `${wholePart}`;
+    }
+    
+    // Format as mixed number
+    return `${isNegative ? '-' : ''}${wholePart}\\frac{${remainder}}{${den}}`;
+  }
+  
+  // Regular fraction
+  return `${isNegative ? '-' : ''}\\frac{${num}}{${den}}`;
 }
 
 function displayWinMessage(winCondition) {
   const historyContainer = document.getElementById('history-container');
   if (!historyContainer) return;
-
+  
   const winMessage = document.createElement('div');
   winMessage.className = 'win-message';
-
-  // Format the solution
-  let solutionDisplay;
-  if (Number.isInteger(winCondition.solution)) {
-    solutionDisplay = winCondition.solution;
-  } else {
-    solutionDisplay = formatSolution(winCondition.num, winCondition.den);
-  }
-
+  
+  // Format the solution as fraction or mixed number
+  const solutionDisplay = formatSolution(winCondition.num, winCondition.den);
+  
   // Create the message with MathJax formatting
   winMessage.innerHTML = `
     <div class="congratulations">
@@ -83,7 +100,7 @@ function displayWinMessage(winCondition) {
       Solution found from the ${winCondition.form} side of the equation
     </div>
   `;
-
+  
   // Add the message to the container
   historyContainer.appendChild(winMessage);
   
@@ -92,10 +109,16 @@ function displayWinMessage(winCondition) {
   if (inputContainer) {
     inputContainer.remove();
   }
-
-  // Process MathJax for the new content
+  
+  // Process MathJax for the new content and scroll into view
   if (window.MathJax) {
-    MathJax.typesetPromise([winMessage]).catch((err) => {
+    MathJax.typesetPromise([winMessage]).then(() => {
+      // Scroll the win message into view with smooth animation
+      winMessage.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center'
+      });
+    }).catch((err) => {
       console.error('MathJax typesetting failed:', err);
     });
   }
