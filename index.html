@@ -313,54 +313,66 @@ function generateEquation() {
       });
     }
 
-    function addInputBox() {
-      const inputContainer = document.getElementById('input-container');
-      inputContainer.innerHTML = `
-        <div class="input-box">
-          <input type="text" id="user-input" placeholder="Enter your command here">
-        </div>
+   // Replace your existing event listener with this version
+function addInputBox() {
+  const inputContainer = document.getElementById('input-container');
+  inputContainer.innerHTML = `
+    <div class="input-box">
+      <input type="text" id="user-input" placeholder="Enter your command here">
+    </div>
+  `;
+
+  // Add event listener for user input
+  const input = document.getElementById('user-input');
+  input.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      const command = this.value.trim();
+      const success = processCommand(command);
+
+      // Create new history entry
+      const historyEntry = document.createElement('div');
+      historyEntry.className = 'history-entry';
+      historyEntry.innerHTML = `
+        <div class="command">Command: ${command}</div>
+        <div class="constants">Constants: ${formatConstants(currentValues)}</div>
+        <div class="equation">\\[ ${generateEquation()} \\]</div>
       `;
 
-      // Add event listener for user input
-      const input = document.getElementById('user-input');
-      input.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-          const command = this.value.trim();
-          const success = processCommand(command);
+      // Add to history container
+      const historyContainer = document.getElementById('history-container');
+      historyContainer.appendChild(historyEntry);
 
-          // Create new history entry
-          const historyEntry = document.createElement('div');
-          historyEntry.className = 'history-entry';
-          historyEntry.innerHTML = `
-            <div class="command">Command: ${command}</div>
-            <div class="constants">Constants: ${formatConstants(currentValues)}</div>
-            <div class="equation">\\[ ${generateEquation()} \\]</div>
-          `;
+      // Check for win condition
+      const winCondition = checkWinCondition(currentValues);
+      
+      if (winCondition && winCondition.won) {
+        // Display win message
+        displayWinMessage(winCondition.solution);
+        
+        // Don't add new input box
+        inputContainer.innerHTML = '';
+      } else {
+        // Remove the current input box and add a new one
+        inputContainer.innerHTML = '';
+        addInputBox();
+      }
 
-          // Add to history container at the bottom
-          const historyContainer = document.getElementById('history-container');
-          historyContainer.appendChild(historyEntry);
-
-          // Remove the current input box
-          inputContainer.innerHTML = '';
-
-          // Add a new input box
-          addInputBox();
-
-          // Refresh MathJax rendering
-          MathJax.typesetPromise().then(() => {
-            // Focus the new input box and scroll it into view
-            const newInput = document.getElementById('user-input');
-            newInput.focus();
-            newInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          });
+      // Refresh MathJax rendering
+      MathJax.typesetPromise().then(() => {
+        // Focus the new input box and scroll it into view if it exists
+        const newInput = document.getElementById('user-input');
+        if (newInput) {
+          newInput.focus();
+          newInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       });
-
-      // Auto-focus the input box
-      input.focus();
     }
+  });
 
+  // Auto-focus the input box
+  input.focus();
+}
+ 
     // Initial render
     window.onload = startGame;
   </script>
