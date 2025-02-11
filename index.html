@@ -7,21 +7,18 @@
   
   <!-- MathJax Configuration -->
   <script>
-    window.MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']]
-      },
-      startup: {
-        ready: () => {
-          MathJax.startup.defaultReady();
-          MathJax.startup.promise.then(() => {
-            startGame();
-          });
-        }
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']]
+    },
+    startup: {
+      ready: () => {
+        MathJax.startup.defaultReady();
       }
-    };
-  </script>
+    }
+  };
+</script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
   
   <style>
@@ -375,6 +372,37 @@
       input.focus();
     }
 
+function simplifyAllFractions(values) {
+  let simplified = {...values};
+  [simplified.a, simplified.b] = simplifyFraction(simplified.a, simplified.b);
+  [simplified.c, simplified.d] = simplifyFraction(simplified.c, simplified.d);
+  [simplified.e, simplified.f] = simplifyFraction(simplified.e, simplified.f);
+  [simplified.g, simplified.h] = simplifyFraction(simplified.g, simplified.h);
+  [simplified.i, simplified.j] = simplifyFraction(simplified.i, simplified.j);
+  [simplified.k, simplified.l] = simplifyFraction(simplified.k, simplified.l);
+  return simplified;
+}
+
+function evaluateFraction(num, den) {
+  if (den === 0) return NaN;
+  return num / den;
+}
+
+function simplifyFraction(num, den) {
+  if (num === 0) return [0, 1];
+  const divisor = gcd(Math.abs(num), Math.abs(den));
+  let [newNum, newDen] = [num / divisor, den / divisor];
+  if (newDen < 0) {
+    newNum = -newNum;
+    newDen = -newDen;
+  }
+  return [newNum, newDen];
+}
+
+function gcd(a, b) {
+  return b === 0 ? Math.abs(a) : gcd(b, a % b);
+}
+    
     function startGame() {
       document.getElementById('history-container').innerHTML = '';
       document.getElementById('initial-equation').innerHTML = '';
@@ -400,5 +428,17 @@
       });
     }
   </script>
+  <script>
+  // Wait for DOM and MathJax to be ready
+  document.addEventListener('DOMContentLoaded', function() {
+    if (window.MathJax) {
+      MathJax.startup.promise.then(() => {
+        startGame();
+      });
+    } else {
+      startGame();
+    }
+  });
+</script>
 </body>
 </html>
