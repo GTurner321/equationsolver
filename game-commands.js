@@ -141,48 +141,111 @@ if ((match = command.match(/^\/(-?\d+)$/))) {
     return false;
   }
 
-// Fraction equality command
-if ((match = command.match(fractionEqualityRegex))) {
-  const n = parseInt(match[1]);
-  const m = parseInt(match[2]);
-  const p = parseInt(match[3]);
-  const q = parseInt(match[4]);
+// Helper function to check if two fractions are equivalent with a ratio
+function areEquivalentFractions(n1, d1, n2, d2) {
+  // Convert to absolute values for comparison
+  const absN1 = Math.abs(n1);
+  const absD1 = Math.abs(d1);
+  const absN2 = Math.abs(n2);
+  const absD2 = Math.abs(d2);
+  
+  // Check if there exists an r where n1*r = n2 and d1*r = d2
+  const r1 = absN2 / absN1;
+  const r2 = absD2 / absD1;
+  
+  return Math.abs(r1 - r2) < 1e-10; // Using small epsilon for float comparison
+}
 
-// Function to check and update equivalent fractions
-const checkAndUpdateFraction = (num, den, n, m, p, q) => {
-  if (num === n && den === m) {
-    const k = p / n;
-    if (k === q / m) {
-      return [p, q];
-    }
+// Helper function to update fraction if equivalent
+function updateIfEquivalent(num, den, n, m, p, q) {
+  if (areEquivalentFractions(Math.abs(num), Math.abs(den), n, m)) {
+    // Preserve original sign when updating
+    const sign = Math.sign(num);
+    return [sign * p, q];
   }
   return [num, den];
-};
-
-  [currentValues.a, currentValues.b] = checkAndUpdateFraction(currentValues.a, currentValues.b, n, m, p, q);
-  [currentValues.c, currentValues.d] = checkAndUpdateFraction(currentValues.c, currentValues.d, n, m, p, q);
-  [currentValues.e, currentValues.f] = checkAndUpdateFraction(currentValues.e, currentValues.f, n, m, p, q);
-  [currentValues.g, currentValues.h] = checkAndUpdateFraction(currentValues.g, currentValues.h, n, m, p, q);
-  [currentValues.i, currentValues.j] = checkAndUpdateFraction(currentValues.i, currentValues.j, n, m, p, q);
-  [currentValues.k, currentValues.l] = checkAndUpdateFraction(currentValues.k, currentValues.l, n, m, p, q);
-
-  return true;
 }
 
-  // Case where 'n = p/q' is entered
-if ((match = command.match(fractionToFractionRegex))) {
-  const n = parseInt(match[1]);
-  const p = parseInt(match[2]);
-  const q = parseInt(match[3]);
-  return processCommand(`${n}/1=${p}/${q}`); // Convert to standard format
-}
-
-// Case where 'n/m = p' is entered
-if ((match = command.match(fractionToIntegerRegex))) {
-  const n = parseInt(match[1]);
-  const m = parseInt(match[2]);
-  const p = parseInt(match[3]);
-  return processCommand(`${n}/${m}=${p}/1`); // Convert to standard format
+// Main fraction equality command processing
+function processFractionEquality(command) {
+  // Handle all formats of fraction equality commands
+  const standardFormat = /^(-?)(\d+)\/(-?)(\d+)=(-?)(\d+)\/(-?)(\d+)$/;
+  const fractionToIntFormat = /^(-?)(\d+)\/(-?)(\d+)=(-?)(\d+)$/;
+  const intToFractionFormat = /^(-?)(\d+)=(-?)(\d+)\/(-?)(\d+)$/;
+  
+  let match;
+  
+  if ((match = command.match(standardFormat))) {
+    // Extract all components including signs
+    const [, sign1, n, sign2, m, sign3, p, sign4, q] = match;
+    
+    // Convert strings to numbers
+    const nVal = parseInt(n);
+    const mVal = parseInt(m);
+    const pVal = parseInt(p);
+    const qVal = parseInt(q);
+    
+    // Calculate effective signs
+    const leftNegative = (sign1 === '-') !== (sign2 === '-');
+    const rightNegative = (sign3 === '-') !== (sign4 === '-');
+    
+    // Apply the transformation to all fraction pairs
+    [currentValues.a, currentValues.b] = updateIfEquivalent(
+      currentValues.a, currentValues.b, 
+      leftNegative ? -nVal : nVal, mVal,
+      rightNegative ? -pVal : pVal, qVal
+    );
+    
+    [currentValues.c, currentValues.d] = updateIfEquivalent(
+      currentValues.c, currentValues.d,
+      leftNegative ? -nVal : nVal, mVal,
+      rightNegative ? -pVal : pVal, qVal
+    );
+    
+    [currentValues.e, currentValues.f] = updateIfEquivalent(
+      currentValues.e, currentValues.f,
+      leftNegative ? -nVal : nVal, mVal,
+      rightNegative ? -pVal : pVal, qVal
+    );
+    
+    [currentValues.g, currentValues.h] = updateIfEquivalent(
+      currentValues.g, currentValues.h,
+      leftNegative ? -nVal : nVal, mVal,
+      rightNegative ? -pVal : pVal, qVal
+    );
+    
+    [currentValues.i, currentValues.j] = updateIfEquivalent(
+      currentValues.i, currentValues.j,
+      leftNegative ? -nVal : nVal, mVal,
+      rightNegative ? -pVal : pVal, qVal
+    );
+    
+    [currentValues.k, currentValues.l] = updateIfEquivalent(
+      currentValues.k, currentValues.l,
+      leftNegative ? -nVal : nVal, mVal,
+      rightNegative ? -pVal : pVal, qVal
+    );
+    
+    return true;
+  }
+  
+  // Handle n/m=p format (convert to n/m=p/1)
+  else if ((match = command.match(fractionToIntFormat))) {
+    const [, sign1, n, sign2, m, sign3, p] = match;
+    return processFractionEquality(
+      `${sign1}${n}/${sign2}${m}=${sign3}${p}/1`
+    );
+  }
+  
+  // Handle n=p/q format (convert to n/1=p/q)
+  else if ((match = command.match(intToFractionFormat))) {
+    const [, sign1, n, sign2, p, sign3, q] = match;
+    return processFractionEquality(
+      `${sign1}${n}/1=${sign2}${p}/${sign3}${q}`
+    );
+  }
+  
+  return false;
 }
 
   // LHS divide operations
