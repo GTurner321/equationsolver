@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Equation Transformation Game</title>
+  
+  <!-- MathJax Configuration -->
   <script>
     window.MathJax = {
       tex: {
@@ -21,79 +24,111 @@
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
   
-  <!-- Load command processing scripts first -->
-  <script src="common-commands.js"></script>
-  <script src="phase1-commands.js"></script>
-  <script src="phase2-commands.js"></script>
-  <script src="game-end.js"></script>
-  <script src="main-commands.js"></script>
-  
   <style>
     body {
       font-family: 'Arial', sans-serif;
       text-align: center;
       background-color: #f0f8ff;
       margin: 20px;
+      line-height: 1.6;
     }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
     .equation {
       font-size: 20px;
       margin: 15px 0;
       padding: 10px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
+    
     .generate-btn {
-      padding: 10px 20px;
+      padding: 12px 24px;
       font-size: 16px;
       background-color: #4CAF50;
       color: white;
       border: none;
+      border-radius: 4px;
       cursor: pointer;
       margin: 20px 0;
+      transition: background-color 0.3s;
     }
+    
     .generate-btn:hover {
       background-color: #45a049;
     }
+    
     .constants {
       text-align: left;
       margin: 20px auto;
-      max-width: 600px;
+      max-width: 800px;
       padding: 15px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
+    
     .input-box {
       margin: 20px auto;
       padding: 10px;
       width: 80%;
-      max-width: 400px;
+      max-width: 600px;
     }
+    
     .input-box input {
       width: 100%;
-      padding: 8px;
+      padding: 12px;
       margin-top: 5px;
       box-sizing: border-box;
+      border: 2px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
     }
+    
+    .input-box input:focus {
+      border-color: #4CAF50;
+      outline: none;
+    }
+    
     .history-container {
       margin: 20px auto;
       max-width: 800px;
       text-align: left;
       padding: 15px;
     }
+    
     .history-entry {
       margin: 15px 0;
-      padding: 10px;
+      padding: 15px;
       border-left: 3px solid #4CAF50;
       background-color: white;
+      border-radius: 0 8px 8px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
+    
     .command {
       color: #666;
       font-family: monospace;
+      font-size: 14px;
+      margin-bottom: 10px;
     }
+    
     .initial-equation {
       margin: 20px auto;
       max-width: 800px;
       text-align: left;
       padding: 15px;
       background-color: white;
-      border-left: 3px solid #4CAF50;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
+    
     .win-message {
       margin: 20px auto;
       padding: 20px;
@@ -103,19 +138,41 @@
       font-size: 1.2em;
       text-align: center;
       max-width: 800px;
+      border-radius: 0 8px 8px 0;
     }
+    
     .congratulations {
       font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    .error-message {
+      color: #d9534f;
+      margin: 10px 0;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
-  <button class="generate-btn" onclick="startGame()">Generate New Equation</button>
-  <div id="original-constants" class="constants">Original constants will appear here...</div>
-  <div id="simplified-constants" class="constants">Simplified constants will appear here...</div>
-  <div id="initial-equation" class="initial-equation"></div>
-  <div id="history-container" class="history-container"></div>
-  <div id="input-container"></div>
+  <div class="container">
+    <h1>Equation Transformation Game</h1>
+    <button class="generate-btn" onclick="startGame()">Generate New Equation</button>
+    
+    <div id="game-container">
+      <div id="original-constants" class="constants">Original constants will appear here...</div>
+      <div id="simplified-constants" class="constants">Simplified constants will appear here...</div>
+      <div id="initial-equation" class="initial-equation"></div>
+      <div id="history-container" class="history-container"></div>
+      <div id="input-container"></div>
+    </div>
+  </div>
+
+  <!-- Load command processing scripts -->
+  <script src="common-commands.js"></script>
+  <script src="phase1-commands.js"></script>
+  <script src="phase2-commands.js"></script>
+  <script src="game-end.js"></script>
+  <script src="main-commands.js"></script>
 
   <!-- Main game script -->
   <script>
@@ -129,10 +186,6 @@
       return value;
     }
 
-    function gcd(a, b) {
-      return b === 0 ? Math.abs(a) : gcd(b, a % b);
-    }
-
     function getRandomPair() {
       let numerator = getRandomInteger(false);
       let denominator = getRandomInteger(false);
@@ -141,17 +194,6 @@
         denominator = -denominator;
       }
       return [numerator, denominator];
-    }
-
-    function simplifyFraction(num, den) {
-      if (num === 0) return [0, 1];
-      const divisor = gcd(num, den);
-      let [newNum, newDen] = [num / divisor, den / divisor];
-      if (newDen < 0) {
-        newNum = -newNum;
-        newDen = -newDen;
-      }
-      return [newNum, newDen];
     }
 
     function generateBaseValues() {
@@ -169,60 +211,6 @@
 
       currentValues = { a, b, c, d, e, f, g, h, i, j, k, l };
       return currentValues;
-    }
-
-    function simplifyAllFractions(values) {
-      let simplified = {...values};
-      [simplified.a, simplified.b] = simplifyFraction(values.a, values.b);
-      [simplified.c, simplified.d] = simplifyFraction(values.c, values.d);
-      [simplified.e, simplified.f] = simplifyFraction(values.e, values.f);
-      [simplified.g, simplified.h] = simplifyFraction(values.g, values.h);
-      [simplified.i, simplified.j] = simplifyFraction(values.i, values.j);
-      [simplified.k, simplified.l] = simplifyFraction(values.k, values.l);
-      return simplified;
-    }
-
-    function evaluateFraction(num, den) {
-      return num / den;
-    }
-
-    function formatFraction(num, den, isCombined = false) {
-      if (num === 0) return "0";
-      
-      const isNegative = (num * den) < 0;
-      const absNum = Math.abs(num);
-      const absDen = Math.abs(den);
-      
-      if (absDen === 1 && !isCombined) {
-        return isNegative ? `-${absNum}` : `${absNum}`;
-      }
-      
-      return `${isNegative ? '-' : ''}\\frac{${absNum}}{${absDen}}`;
-    }
-
-    function formatXCoefficient(coeff) {
-      if (coeff === 0) return "0";
-      if (coeff === 1) return "x";
-      if (coeff === -1) return "-x";
-      return `${coeff}x`;
-    }
-
-    function formatCombinedNumerator(coeff, constant) {
-      let result = "";
-      if (coeff !== 0) {
-        if (coeff === 1) {
-          result += "x";
-        } else if (coeff === -1) {
-          result += "-x";
-        } else {
-          result += `${coeff}x`;
-        }
-        if (constant > 0) result += "+";
-      }
-      if (constant !== 0 || coeff === 0) {
-        result += `${constant}`;
-      }
-      return result;
     }
 
     function formatExpression(outer1, outer2, c, d, e, f) {
@@ -265,49 +253,72 @@
       return `${result}${innerExpression}`;
     }
 
-    function cleanupRendering(expression) {
-      return expression
-        .replace(/1x/g, 'x')
-        .replace(/-1x/g, '-x')
-        .replace(/\{1x\}/g, '{x}')
-        .replace(/\{-1x\}/g, '{-x}');
+    function formatXCoefficient(coeff) {
+      if (coeff === 0) return "0";
+      if (coeff === 1) return "x";
+      if (coeff === -1) return "-x";
+      return `${coeff}x`;
+    }
+
+    function formatCombinedNumerator(coeff, constant) {
+      let result = "";
+      if (coeff !== 0) {
+        if (coeff === 1) {
+          result += "x";
+        } else if (coeff === -1) {
+          result += "-x";
+        } else {
+          result += `${coeff}x`;
+        }
+        if (constant > 0) result += "+";
+      }
+      if (constant !== 0 || coeff === 0) {
+        result += `${constant}`;
+      }
+      return result;
+    }
+
+    function formatFraction(num, den, isCombined = false) {
+      if (num === 0) return "0";
+      
+      const isNegative = (num * den) < 0;
+      const absNum = Math.abs(num);
+      const absDen = Math.abs(den);
+      
+      if (absDen === 1 && !isCombined) {
+        return isNegative ? `-${absNum}` : `${absNum}`;
+      }
+      
+      return `${isNegative ? '-' : ''}\\frac{${absNum}}{${absDen}}`;
     }
 
     function generateEquation() {
       let { a, b, c, d, e, f, g, h, i, j, k, l } = currentValues;
       let leftExpression = formatExpression(a, b, c, d, e, f);
       let rightExpression = formatExpression(g, h, i, j, k, l);
-      return cleanupRendering(`${leftExpression} = ${rightExpression}`);
+      return `\\[ ${leftExpression} = ${rightExpression} \\]`;
     }
-    
+
     function formatConstants(values) {
       return `a=${values.a}, b=${values.b}, c=${values.c}, d=${values.d}, ` +
              `e=${values.e}, f=${values.f}, g=${values.g}, h=${values.h}, ` +
              `i=${values.i}, j=${values.j}, k=${values.k}, l=${values.l}`;
     }
 
-    function startGame() {
-      document.getElementById('history-container').innerHTML = '';
-      document.getElementById('initial-equation').innerHTML = '';
-      document.getElementById('input-container').innerHTML = '';
-
-      generateBaseValues();
-      document.getElementById('original-constants').innerHTML = 
-        `Original constants: ${formatConstants(currentValues)}`;
-      
-      currentValues = simplifyAllFractions(currentValues);
-      document.getElementById('simplified-constants').innerHTML = 
-        `Simplified constants: ${formatConstants(currentValues)}`;
-      
-      const equation = generateEquation();
-      document.getElementById('initial-equation').innerHTML = `
-        <div class="equation">\\[ ${equation} \\]</div>
+    function addHistoryEntry(command) {
+      const historyEntry = document.createElement('div');
+      historyEntry.className = 'history-entry';
+      historyEntry.innerHTML = `
+        <div class="command">Command: ${command}</div>
+        <div class="constants">Constants: ${formatConstants(currentValues)}</div>
+        <div class="equation">${generateEquation()}</div>
       `;
 
-      addInputBox();
+      const historyContainer = document.getElementById('history-container');
+      historyContainer.appendChild(historyEntry);
 
-      MathJax.typesetPromise().then(() => {
-        document.getElementById('user-input')?.focus();
+      MathJax.typesetPromise([historyEntry]).catch((err) => {
+        console.error('MathJax typesetting failed:', err);
       });
     }
 
@@ -325,38 +336,68 @@
           const command = this.value.trim();
           const success = processCommand(command);
 
-          const historyEntry = document.createElement('div');
-          historyEntry.className = 'history-entry';
-          historyEntry.innerHTML = `
-            <div class="command">Command: ${command}</div>
-            <div class="constants">Constants: ${formatConstants(currentValues)}</div>
-            <div class="equation">\\[ ${generateEquation()} \\]</div>
-          `;
+          if (success) {
+            addHistoryEntry(command);
 
-          const historyContainer = document.getElementById('history-container');
-          historyContainer.appendChild(historyEntry);
-
-          const winCondition = checkWinCondition(currentValues);
-          
-          if (winCondition && winCondition.won) {
-            displayWinMessage(winCondition.solution);
-            inputContainer.innerHTML = '';
-          } else {
-            inputContainer.innerHTML = '';
-            addInputBox();
-          }
-
-          MathJax.typesetPromise().then(() => {
-            const newInput = document.getElementById('user-input');
-            if (newInput) {
-              newInput.focus();
-              newInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const winCondition = checkWinCondition(currentValues);
+            if (winCondition && winCondition.won) {
+              displayWinMessage(winCondition);
+              inputContainer.innerHTML = '';
+            } else {
+              this.value = '';
             }
-          });
+
+            const equation = generateEquation();
+            document.getElementById('initial-equation').innerHTML = `
+              <div class="equation">${equation}</div>
+            `;
+
+            MathJax.typesetPromise().then(() => {
+              const newInput = document.getElementById('user-input');
+              if (newInput) {
+                newInput.focus();
+                newInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            }).catch((err) => {
+              console.error('MathJax typesetting failed:', err);
+            });
+          } else {
+            // Show error message
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = 'Invalid command. Please try again.';
+            input.parentNode.appendChild(errorDiv);
+            setTimeout(() => errorDiv.remove(), 3000);
+          }
         }
       });
 
       input.focus();
+    }
+
+    function startGame() {
+      document.getElementById('history-container').innerHTML = '';
+      document.getElementById('initial-equation').innerHTML = '';
+      document.getElementById('input-container').innerHTML = '';
+
+      generateBaseValues();
+      document.getElementById('original-constants').innerHTML = 
+        `Original constants: ${formatConstants(currentValues)}`;
+      
+      currentValues = simplifyAllFractions(currentValues);
+      document.getElementById('simplified-constants').innerHTML = 
+        `Simplified constants: ${formatConstants(currentValues)}`;
+      
+      const equation = generateEquation();
+      document.getElementById('initial-equation').innerHTML = `
+        <div class="equation">${equation}</div>
+      `;
+
+      addInputBox();
+
+      MathJax.typesetPromise().then(() => {
+        document.getElementById('user-input')?.focus();
+      });
     }
   </script>
 </body>
