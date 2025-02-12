@@ -173,8 +173,8 @@ class Grid {
                 switch (cell.state) {
                     case 1:
                         if (this.allCellsInS1orS8()) {
-                            if (y < 16) {
-                                newStates[y][x] = Math.random() < 1/200 ? 2 : 1;
+                            if (y < 10) {
+                                newStates[y][x] = Math.random() < 1/180 ? 2 : 1;
                             } else {
                                 newStates[y][x] = 1;
                             }
@@ -233,7 +233,7 @@ function initializeBackground() {
     const grid = new Grid(GRID_WIDTH, GRID_HEIGHT);
     
     // Start update loop with same interval as original
-    setInterval(() => grid.update(), 900);
+    setInterval(() => grid.update(), 1000);
 }
 
 // Start the background when the document is loaded
