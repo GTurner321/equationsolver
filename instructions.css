@@ -57,17 +57,22 @@
 
 .command-box ul {
   margin: 10px 0;
-  padding-left: 0;  /* Remove the left padding that creates space for bullets */
-  list-style-type: none;  /* Remove bullet points */
+  padding-left: 0;
+  list-style-type: none;
 }
 
 .command-box li {
   margin-bottom: 8px;
-  padding-left: 0;  /* Remove any potential left padding on list items */
+  padding-left: 0;
+  white-space: pre-line;  /* Preserve line breaks within list items */
+  text-indent: -20px;     /* Create visual indentation for wrapped lines */
+  padding-left: 20px;     /* Offset the negative text-indent */
 }
 
 .command-box h3 {
   margin: 10px 0;
   font-size: 16px;
   font-weight: bold;
+  padding-top: 10px;      /* Add spacing above headers */
+  border-top: 1px solid #ddd;  /* Add subtle divider above sections */
 }
