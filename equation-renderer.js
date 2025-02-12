@@ -48,12 +48,19 @@ function formatExpression(outer1, outer2, c, d, e, f) {
   if (c === 0 && e === 0) return "0";
 
   let result = "";
-  const needsBrackets = outer1 !== outer2; // Check if outer fraction ≠ 1
+  // Special handling for when outer fraction = 1 or -1
+  const isOne = outer1 === outer2;
+  const isNegOne = outer1 === -outer2;
+  const needsBrackets = !isOne || isNegOne;
 
   // Handle outer fraction
   if (Math.abs(outer2) === 1) {
     if (outer2 === -1) {
-      result += outer1 === 1 ? "-" : `${-outer1}`;
+      if (outer1 === 1) {
+        result += "-";
+      } else {
+        result += `${-outer1}`;
+      }
     } else if (outer1 !== 1) {
       result += `${outer1}`;
     }
@@ -91,7 +98,8 @@ function formatExpression(outer1, outer2, c, d, e, f) {
   const innerExpression = `${cTerm} ${sign} ${fractionEF}`;
   return needsBrackets ? `${result}\\left(${innerExpression}\\right)` : `${result}${innerExpression}`;
 }
-function formatConstants(values) {
+
+  function formatConstants(values) {
   return `a=${values.a}, b=${values.b}, c=${values.c}, d=${values.d}, ` +
          `e=${values.e}, f=${values.f}, g=${values.g}, h=${values.h}, ` +
          `i=${values.i}, j=${values.j}, k=${values.k}, l=${values.l}`;
