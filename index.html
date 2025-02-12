@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Equation Transformation Game</title>
-  <link rel="stylesheet" href="instructions.css">
   
   <!-- MathJax Configuration -->
   <script>
@@ -143,9 +142,17 @@
 <body>
   <!-- Background container -->
   <div id="background-container"></div>
-
   <!-- Instructions container -->
-  <div id="instructions-container"></div>
+  <div id="instructions-container">
+    <div id="instructions"></div>
+    <script>
+        fetch('instructions.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('instructions').innerHTML = data;
+            });
+    </script>
+</div>
 
   <div class="container">
     <h1>Equation Transformation Game</h1>
