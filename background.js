@@ -193,7 +193,7 @@ class Grid {
                                 newStates[y][x] = 2;
                             } else if (diagonalInfectiousNeighbors.length > 0 && Math.random() < 1/16) {
                                 newStates[y][x] = 2;
-                            } else if (isTwoAboveInfectious && Math.random() < 1/12) {
+                            } else if (isTwoAboveInfectious && Math.random() < 1/13) {
                                 newStates[y][x] = 2;
                             } else {
                                 newStates[y][x] = 1;
@@ -233,7 +233,7 @@ function initializeBackground() {
     const grid = new Grid(GRID_WIDTH, GRID_HEIGHT);
     
     // Start update loop with same interval as original
-    setInterval(() => grid.update(), 500);
+    setInterval(() => grid.update(), 600);
 }
 
 // Start the background when the document is loaded
