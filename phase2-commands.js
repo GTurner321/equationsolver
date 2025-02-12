@@ -1,4 +1,3 @@
-// phase2-commands.js
 function processPhase2Command(command, currentValues) {
   // Try fraction equality command first (from common-commands.js)
   if (processFractionEquality(command, currentValues)) {
@@ -12,8 +11,8 @@ function processPhase2Command(command, currentValues) {
     divide: /^\/(-?\d+)$/,
     addConstant: /^\+(\d+)\/(\d+)$|^\+(\d+)$/,
     subtractConstant: /^-(\d+)\/(\d+)$|^-(\d+)$/,
-    addXTerm: /^\+(\d+)\/(\d+)x$|^\+(\d+)x$|^\+x$/,  // Added +x pattern
-    subtractXTerm: /^-(\d+)\/(\d+)x$|^-(\d+)x$|^-x$/,  // Added -x pattern
+    addXTerm: /^\+(\d+)\/(\d+)x$|^\+(\d+)x$|^\+x$/,
+    subtractXTerm: /^-(\d+)\/(\d+)x$|^-(\d+)x$|^-x$/,
     lhsDivide: /^lhs\/(-?\d+),\/(-?\d+)$/,
     rhsDivide: /^rhs\/(-?\d+),\/(-?\d+)$/
   };
@@ -29,14 +28,16 @@ function processPhase2Command(command, currentValues) {
   }
 
   // Helper function to process fraction operations
-  function processFractionOperation(num, den, n, m, operation = 'multiply') {
+  function processFractionOperation(num, den, n, operation = 'multiply') {
     if (operation === 'multiply') {
       const absN = Math.abs(n);
       const gcd = findGCD(absN, den);
       if (gcd > 1) {
-        return [num * (absN / gcd), den / gcd];
+        // For negative n, multiply the numerator by -1
+        return [num * ((n < 0 ? -1 : 1) * absN / gcd), den / gcd];
       }
-      return [num * absN, den];
+      // For negative n, multiply the numerator by n directly (includes the sign)
+      return [num * n, den];
     } else if (operation === 'divide') {
       const absN = Math.abs(n);
       const gcd = findGCD(Math.abs(num), absN);
@@ -62,7 +63,7 @@ function processPhase2Command(command, currentValues) {
     
     for (const [num, den] of pairs) {
       [currentValues[num], currentValues[den]] = 
-        processFractionOperation(currentValues[num], currentValues[den], n, 1, 'multiply');
+        processFractionOperation(currentValues[num], currentValues[den], n, 'multiply');
     }
     return true;
   }
@@ -79,8 +80,9 @@ function processPhase2Command(command, currentValues) {
     ];
     
     for (const [num, den] of pairs) {
-      currentValues[num] *= n;
-      currentValues[den] *= m;
+      // Use processFractionOperation for consistent handling of negative numbers
+      [currentValues[num], currentValues[den]] = 
+        processFractionOperation(currentValues[num] * m, currentValues[den], n, 'multiply');
     }
     return true;
   }
@@ -97,12 +99,12 @@ function processPhase2Command(command, currentValues) {
     
     for (const [num, den] of pairs) {
       [currentValues[num], currentValues[den]] = 
-        processFractionOperation(currentValues[num], currentValues[den], n, 1, 'divide');
+        processFractionOperation(currentValues[num], currentValues[den], n, 'divide');
     }
     return true;
   }
 
-  // Helper function for constant term operations
+   // Helper function for constant term operations
   function processConstantTerm(n, m, isSubtract = false) {
     if (m === 0) return false;
     const sign = isSubtract ? -1 : 1;
