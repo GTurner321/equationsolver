@@ -27,21 +27,19 @@ function formatCombinedNumerator(coeff, constant) {
 function formatFraction(num, den, isCombined = false) {
   if (num === 0) return "0";
   
+  // Handle denominators of 1 or -1
+  if (Math.abs(den) === 1) {
+    const result = den === -1 ? -num : num;
+    return `${result}`;
+  }
+  
   const isNegative = (num * den) < 0;
   const absNum = Math.abs(num);
   const absDen = Math.abs(den);
   
-  if (absDen === 1 && !isCombined) {
-    return isNegative ? `-${absNum}` : `${absNum}`;
-  }
-  
   if (isCombined) {
-    // For combined fractions, keep negative sign with denominator
-    const signedDen = den < 0 ? -absDen : absDen;
-    const signedNum = num < 0 ? -absNum : absNum;
-    return `\\frac{${signedNum}}{${signedDen}}`;
+    return `\\frac{${num}}{${absDen}}`;
   } else {
-    // For regular fractions, keep current behavior
     return `${isNegative ? '-' : ''}\\frac{${absNum}}{${absDen}}`;
   }
 }
@@ -49,26 +47,44 @@ function formatFraction(num, den, isCombined = false) {
 function formatExpression(outer1, outer2, c, d, e, f) {
   if (c === 0 && e === 0) return "0";
 
-  const outerValue = evaluateFraction(outer1, outer2);
+  // Handle cases where outer fraction has denominator ±1
+  const outerValue = outer2 === 1 ? outer1 : (outer2 === -1 ? -outer1 : null);
   let result = "";
 
-  if (outerValue === -1) {
-    result += "-";
-  } else if (outerValue !== 1) {
+  if (outerValue !== null) {
+    if (outerValue === -1) {
+      result += "-";
+    } else if (outerValue !== 1) {
+      result += `${outerValue}`;
+    }
+  } else {
     result += formatFraction(outer1, outer2);
   }
 
-  if (d === f && !(d === 1 && f === 1)) {
+  // Handle combined fractions
+  if (d === f) {
+    // Special case: denominator is ±1
+    if (Math.abs(d) === 1) {
+      const numerator = formatCombinedNumerator(c * Math.sign(d), e * Math.sign(d));
+      if (outerValue === -1 || (outerValue !== 1 && outerValue !== null)) {
+        return `${result}\\left(${numerator}\\right)`;
+      }
+      return `${result}${numerator}`;
+    }
+    
     const numerator = formatCombinedNumerator(c, e);
     const fraction = formatFraction(1, d, true).replace('1', numerator);
     
-    if (outerValue === -1 || outerValue !== 1) {
+    if (outerValue === -1 || (outerValue !== 1 && outerValue !== null)) {
       return `${result}\\left(${fraction}\\right)`;
     }
     return `${result}${fraction}`;
   }
 
-  if (c === 0) return `${result}${formatFraction(e, f)}`;
+  // Handle regular expressions
+  if (c === 0) {
+    return `${result}${formatFraction(e, f)}`;
+  }
   if (e === 0) {
     return d === 1 ? `${result}${formatXCoefficient(c)}` : `${result}${formatFraction(c, d)}x`;
   }
@@ -80,7 +96,7 @@ function formatExpression(outer1, outer2, c, d, e, f) {
 
   const innerExpression = `${cTerm} ${sign} ${fractionEF}`;
   
-  if (outerValue === -1 || outerValue !== 1) {
+  if (outerValue === -1 || (outerValue !== 1 && outerValue !== null)) {
     return `${result}\\left(${innerExpression}\\right)`;
   }
   return `${result}${innerExpression}`;
