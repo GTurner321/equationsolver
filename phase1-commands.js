@@ -233,25 +233,80 @@ function processPhase1Command(command, currentValues) {
   }
 
   // Handle divide operations
-  function processDivideOp(match, isRhs) {
-    const n = parseInt(match[1] || match[2]);
-    if (n === 0) return false;
+function processDivideOp(match, isRhs) {
+  const n = parseInt(match[1] || match[2]);
+  if (n === 0) return false;
+  
+  const isNegative = command.includes('/-');
+  const absN = Math.abs(n);
+  
+  if (isRhs) {
+    // Right side operations
+    const rightSideValue = evaluateFraction(currentValues.g, currentValues.h);
     
-    const isNegative = command.includes('/-');
-    const [num, den] = isRhs ? ['g', 'h'] : ['a', 'b'];
-    
-    if (currentValues[num] % n === 0 && currentValues[den] % n === 0) {
-      currentValues[num] /= n;
-      currentValues[den] /= n;
-      if (isNegative) {
-        currentValues[num] *= -1;
-        currentValues[den] *= -1;
+    if (rightSideValue === 1) {
+      // Case 1: g/h = 1, check i/j and k/l pairs
+      let success = false;
+      
+      // Check i/j pair
+      if (isFactor(currentValues.i, absN) && isFactor(currentValues.j, absN)) {
+        currentValues.i /= n;
+        currentValues.j /= n;
+        success = true;
       }
-      return true;
+      
+      // Check k/l pair
+      if (isFactor(currentValues.k, absN) && isFactor(currentValues.l, absN)) {
+        currentValues.k /= n;
+        currentValues.l /= n;
+        success = true;
+      }
+      
+      return success;
+    } else {
+      // Case 2: g/h ≠ 1, check g/h pair
+      if (isFactor(currentValues.g, absN) && isFactor(currentValues.h, absN)) {
+        currentValues.g /= n;
+        currentValues.h /= n;
+        return true;
+      }
     }
-    return false;
+  } else {
+    // Left side operations
+    const leftSideValue = evaluateFraction(currentValues.a, currentValues.b);
+    
+    if (leftSideValue === 1) {
+      // Case 1: a/b = 1, check c/d and e/f pairs
+      let success = false;
+      
+      // Check c/d pair
+      if (isFactor(currentValues.c, absN) && isFactor(currentValues.d, absN)) {
+        currentValues.c /= n;
+        currentValues.d /= n;
+        success = true;
+      }
+      
+      // Check e/f pair
+      if (isFactor(currentValues.e, absN) && isFactor(currentValues.f, absN)) {
+        currentValues.e /= n;
+        currentValues.f /= n;
+        success = true;
+      }
+      
+      return success;
+    } else {
+      // Case 2: a/b ≠ 1, check a/b pair
+      if (isFactor(currentValues.a, absN) && isFactor(currentValues.b, absN)) {
+        currentValues.a /= n;
+        currentValues.b /= n;
+        return true;
+      }
+    }
   }
-
+  
+  return false;
+}
+  
   if ((match = command.match(commandPatterns.lhsDivide))) {
     return processDivideOp(match, false);
   }
