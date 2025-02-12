@@ -94,12 +94,13 @@ function checkWinCondition(values) {
 }
 
 /**
- * Formats a solution as a LaTeX fraction or mixed number
+ * Formats a solution as a LaTeX fraction
  * @param {number} num - Numerator
  * @param {number} den - Denominator
+ * @param {boolean} forceMixed - Force mixed number format even for proper fractions
  * @returns {string} LaTeX formatted fraction
  */
-function formatSolution(num, den) {
+function formatSolution(num, den, forceMixed = false) {
   // Handle special cases
   if (den === 0) return "undefined";
   if (num === 0) return "0";
@@ -114,8 +115,8 @@ function formatSolution(num, den) {
     return isNegative ? `-${num}` : `${num}`;
   }
   
-  // Check if it's an improper fraction
-  if (num >= den) {
+  // For improper fractions or when mixed format is forced
+  if (num >= den || forceMixed) {
     const wholePart = Math.floor(num / den);
     const remainder = num % den;
     
@@ -128,7 +129,7 @@ function formatSolution(num, den) {
     return `${isNegative ? '-' : ''}${wholePart}\\frac{${remainder}}{${den}}`;
   }
   
-  // Regular fraction
+  // Regular fraction (only for non-forced mixed numbers)
   return `${isNegative ? '-' : ''}\\frac{${num}}{${den}}`;
 }
 
@@ -143,9 +144,17 @@ function displayWinMessage(winCondition) {
   const winMessage = document.createElement('div');
   winMessage.className = 'win-message';
   
-  // Format both fraction representations
-  const simpleFraction = formatSolution(winCondition.num, winCondition.den);
-  const mixedNumber = formatSolution(winCondition.num, winCondition.den);
+  // Get improper fraction representation
+  const improperFraction = formatSolution(winCondition.num, winCondition.den);
+  
+  // Only get mixed number if it's an improper fraction
+  let solution;
+  if (Math.abs(winCondition.num) >= Math.abs(winCondition.den)) {
+    const mixedNumber = formatSolution(winCondition.num, winCondition.den, true);
+    solution = `${improperFraction} = ${mixedNumber}`;
+  } else {
+    solution = improperFraction;
+  }
   
   // Create the message with MathJax formatting
   winMessage.innerHTML = `
@@ -153,7 +162,7 @@ function displayWinMessage(winCondition) {
       Well done! You have solved the equation.
     </div>
     <div class="solution">
-      \\[x = ${simpleFraction} = ${mixedNumber}\\]
+      \\[x = ${solution}\\]
     </div>
     <div class="method">
       Solution found from the ${winCondition.form} side of the equation
