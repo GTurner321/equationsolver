@@ -54,32 +54,31 @@ class Grid {
         this.markRandomCells();
     }
 
-    initialize() {
-        const gridDiv = document.createElement('div');
-        gridDiv.id = 'grid';
-        gridDiv.style.cssText = `
-            display: grid;
-            grid-template-columns: repeat(${this.width}, 1fr);
-            width: 100%;
-            height: 360vh;
-            gap: 0;
-            position: absolute;
-            top: 0;
-            left: 0;
-            transform: translateY(0);
-            will-change: transform;
-        `;
-        this.gridElement.appendChild(gridDiv);
-        
-        for (let y = 0; y < this.height; y++) {
-            this.cells[y] = [];
-            for (let x = 0; x < this.width; x++) {
-                const cell = new Cell(x, y);
-                this.cells[y][x] = cell;
-                gridDiv.appendChild(cell.element);
-            }
+initialize() {
+    const gridDiv = document.createElement('div');
+    gridDiv.id = 'grid';
+    gridDiv.style.cssText = `
+        display: grid;
+        grid-template-columns: repeat(${this.width}, 1fr);
+        width: 100%;
+        height: 360vh;
+        gap: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        will-change: transform;
+    `;
+    this.gridElement.appendChild(gridDiv);
+    
+    for (let y = 0; y < this.height; y++) {
+        this.cells[y] = [];
+        for (let x = 0; x < this.width; x++) {
+            const cell = new Cell(x, y);
+            this.cells[y][x] = cell;
+            gridDiv.appendChild(cell.element);
         }
     }
+}
 
     getRandomCell() {
         const y = Math.floor(Math.random() * this.height);
