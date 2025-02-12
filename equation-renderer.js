@@ -48,36 +48,36 @@ function formatExpression(outer1, outer2, c, d, e, f) {
   if (c === 0 && e === 0) return "0";
 
   let result = "";
-  // Special handling for when outer fraction = 1 or -1
+  // Check if outer fraction evaluates to 1 or -1
   const isOne = outer1 === outer2;
   const isNegOne = outer1 === -outer2;
-  const needsBrackets = !isOne || isNegOne;
 
   // Handle outer fraction
-  if (Math.abs(outer2) === 1) {
-    if (outer2 === -1) {
-      if (outer1 === 1) {
-        result += "-";
-      } else {
-        result += `${-outer1}`;
-      }
-    } else if (outer1 !== 1) {
-      result += `${outer1}`;
-    }
+  if (isOne) {
+    // Don't add anything for coefficient of 1
+    result = "";
+  } else if (isNegOne) {
+    // Add just the minus sign for coefficient of -1
+    result = "-";
+  } else if (Math.abs(outer2) === 1) {
+    // Handle cases where denominator is 1 or -1
+    result = `${outer2 === -1 ? -outer1 : outer1}`;
   } else {
-    result += formatFraction(outer1, outer2);
+    // Regular fraction case
+    result = formatFraction(outer1, outer2);
   }
 
   // Handle combined fractions
   if (d === f) {
     if (Math.abs(d) === 1) {
       const numerator = formatCombinedNumerator(c * Math.sign(d), e * Math.sign(d));
-      return needsBrackets ? `${result}\\left(${numerator}\\right)` : `${result}${numerator}`;
+      // Only add brackets if we have a negative outer coefficient
+      return isNegOne ? `${result}\\left(${numerator}\\right)` : `${result}${numerator}`;
     }
     
     const numerator = formatCombinedNumerator(c, e);
     const fraction = formatFraction(1, d, true).replace('1', numerator);
-    return needsBrackets ? `${result}\\left(${fraction}\\right)` : `${result}${fraction}`;
+    return isNegOne ? `${result}\\left(${fraction}\\right)` : `${result}${fraction}`;
   }
 
   // Handle regular expressions
@@ -96,10 +96,11 @@ function formatExpression(outer1, outer2, c, d, e, f) {
   const cTerm = d === 1 ? formatXCoefficient(c) : `${formatFraction(c, d)}x`;
 
   const innerExpression = `${cTerm} ${sign} ${fractionEF}`;
-  return needsBrackets ? `${result}\\left(${innerExpression}\\right)` : `${result}${innerExpression}`;
+  // Only add brackets if we have a negative outer coefficient
+  return isNegOne ? `${result}\\left(${innerExpression}\\right)` : `${result}${innerExpression}`;
 }
 
-  function formatConstants(values) {
+function formatConstants(values) {
   return `a=${values.a}, b=${values.b}, c=${values.c}, d=${values.d}, ` +
          `e=${values.e}, f=${values.f}, g=${values.g}, h=${values.h}, ` +
          `i=${values.i}, j=${values.j}, k=${values.k}, l=${values.l}`;
