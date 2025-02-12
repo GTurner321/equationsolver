@@ -38,123 +38,133 @@ function processPhase1Command(command, currentValues) {
   }
 
   function handleMultiply(n, currentValues) {
-    if (n === 0) return false;
+  if (n === 0) return false;
 
-    const leftSideValue = evaluateFraction(currentValues.a, currentValues.b);
-    const rightSideValue = evaluateFraction(currentValues.g, currentValues.h);
+  const leftSideValue = evaluateFraction(currentValues.a, currentValues.b);
+  const rightSideValue = evaluateFraction(currentValues.g, currentValues.h);
 
-    // Case 1: Left side is 1, right side isn't 1
-    if (leftSideValue === 1 && rightSideValue !== 1) {
-      const hcfHN = hcf(currentValues.h, Math.abs(n));
-      const multiplier = n / hcfHN;
-      currentValues.h = currentValues.h / hcfHN;
-      currentValues.g = currentValues.g * multiplier;
-      
-      // Handle c/d
-      const hcfND = hcf(n, currentValues.d);
-      currentValues.c = currentValues.c * (n / hcfND);
-      currentValues.d = currentValues.d / hcfND;
-      
-      // Handle e/f
-      const hcfNF = hcf(n, currentValues.f);
-      currentValues.e = currentValues.e * (n / hcfNF);
-      currentValues.f = currentValues.f / hcfNF;
-    }
-    // Case 2: Right side is 1, left side isn't 1
-    else if (rightSideValue === 1 && leftSideValue !== 1) {
-      const hcfBN = hcf(currentValues.b, Math.abs(n));
-      const multiplier = n / hcfBN;
-      currentValues.b = currentValues.b / hcfBN;
-      currentValues.a = currentValues.a * multiplier;
-      
-      // Handle i/j
-      const hcfNJ = hcf(n, currentValues.j);
-      currentValues.i = currentValues.i * (n / hcfNJ);
-      currentValues.j = currentValues.j / hcfNJ;
-      
-      // Handle k/l
-      const hcfNL = hcf(n, currentValues.l);
-      currentValues.k = currentValues.k * (n / hcfNL);
-      currentValues.l = currentValues.l / hcfNL;
-    }
-    // Case 3: Neither side is 1
-    else if (leftSideValue !== 1 && rightSideValue !== 1) {
-      // Handle left side
-      if (isFactor(currentValues.b, Math.abs(n))) {
-        currentValues.b = currentValues.b / n;
-      } else {
-        currentValues.a = currentValues.a * n;
-      }
-      
-      // Handle right side
-      if (isFactor(currentValues.h, Math.abs(n))) {
-        currentValues.h = currentValues.h / n;
-      } else {
-        currentValues.g = currentValues.g * n;
-      }
-    }
+  // Case: Neither side is 1
+  if (leftSideValue !== 1 && rightSideValue !== 1) {
+    // Handle left side (a/b)
+    const hcfBN = hcf(currentValues.b, Math.abs(n));
+    const leftMultiplier = n / hcfBN;
+    currentValues.b = currentValues.b / hcfBN;
+    currentValues.a = currentValues.a * leftMultiplier;
+    
+    // Handle right side (g/h)
+    const hcfHN = hcf(currentValues.h, Math.abs(n));
+    const rightMultiplier = n / hcfHN;
+    currentValues.h = currentValues.h / hcfHN;
+    currentValues.g = currentValues.g * rightMultiplier;
+    
     return true;
   }
-
-  function handleDivide(n, currentValues) {
-    if (n === 0) return false;
-
-    const leftSideValue = evaluateFraction(currentValues.a, currentValues.b);
-    const rightSideValue = evaluateFraction(currentValues.g, currentValues.h);
-
-    // Case 1: Left side is 1, right side isn't 1
-    if (leftSideValue === 1 && rightSideValue !== 1) {
-      const hcfGN = hcf(currentValues.g, Math.abs(n));
-      const multiplier = n / hcfGN;
-      currentValues.g = currentValues.g / hcfGN;
-      currentValues.h = currentValues.h * multiplier;
-      
-      // Handle c/d
-      const hcfNC = hcf(n, currentValues.c);
-      currentValues.d = currentValues.d * (n / hcfNC);
-      currentValues.c = currentValues.c / hcfNC;
-      
-      // Handle e/f
-      const hcfNE = hcf(n, currentValues.e);
-      currentValues.f = currentValues.f * (n / hcfNE);
-      currentValues.e = currentValues.e / hcfNE;
-    }
-    // Case 2: Right side is 1, left side isn't 1
-    else if (rightSideValue === 1 && leftSideValue !== 1) {
-      const hcfAN = hcf(currentValues.a, Math.abs(n));
-      const multiplier = n / hcfAN;
-      currentValues.a = currentValues.a / hcfAN;
-      currentValues.b = currentValues.b * multiplier;
-      
-      // Handle i/j
-      const hcfNI = hcf(n, currentValues.i);
-      currentValues.j = currentValues.j * (n / hcfNI);
-      currentValues.i = currentValues.i / hcfNI;
-      
-      // Handle k/l
-      const hcfNK = hcf(n, currentValues.k);
-      currentValues.l = currentValues.l * (n / hcfNK);
-      currentValues.k = currentValues.k / hcfNK;
-    }
-    // Case 3: Neither side is 1
-    else if (leftSideValue !== 1 && rightSideValue !== 1) {
-      // Handle left side
-      if (isFactor(currentValues.a, Math.abs(n))) {
-        currentValues.a = currentValues.a / n;
-      } else {
-        currentValues.b = currentValues.b * n;
-      }
-      
-      // Handle right side
-      if (isFactor(currentValues.g, Math.abs(n))) {
-        currentValues.g = currentValues.g / n;
-      } else {
-        currentValues.h = currentValues.h * n;
-      }
-    }
+  
+  // Original logic for other cases remains unchanged
+  // Case 1: Left side is 1, right side isn't 1
+  else if (leftSideValue === 1 && rightSideValue !== 1) {
+    const hcfHN = hcf(currentValues.h, Math.abs(n));
+    const multiplier = n / hcfHN;
+    currentValues.h = currentValues.h / hcfHN;
+    currentValues.g = currentValues.g * multiplier;
+    
+    // Handle c/d
+    const hcfND = hcf(n, currentValues.d);
+    currentValues.c = currentValues.c * (n / hcfND);
+    currentValues.d = currentValues.d / hcfND;
+    
+    // Handle e/f
+    const hcfNF = hcf(n, currentValues.f);
+    currentValues.e = currentValues.e * (n / hcfNF);
+    currentValues.f = currentValues.f / hcfNF;
     return true;
   }
+  // Case 2: Right side is 1, left side isn't 1
+  else if (rightSideValue === 1 && leftSideValue !== 1) {
+    const hcfBN = hcf(currentValues.b, Math.abs(n));
+    const multiplier = n / hcfBN;
+    currentValues.b = currentValues.b / hcfBN;
+    currentValues.a = currentValues.a * multiplier;
+    
+    // Handle i/j
+    const hcfNJ = hcf(n, currentValues.j);
+    currentValues.i = currentValues.i * (n / hcfNJ);
+    currentValues.j = currentValues.j / hcfNJ;
+    
+    // Handle k/l
+    const hcfNL = hcf(n, currentValues.l);
+    currentValues.k = currentValues.k * (n / hcfNL);
+    currentValues.l = currentValues.l / hcfNL;
+    return true;
+  }
+  
+  return false;
+}
 
+function handleDivide(n, currentValues) {
+  if (n === 0) return false;
+
+  const leftSideValue = evaluateFraction(currentValues.a, currentValues.b);
+  const rightSideValue = evaluateFraction(currentValues.g, currentValues.h);
+
+  // Case: Neither side is 1
+  if (leftSideValue !== 1 && rightSideValue !== 1) {
+    // Handle left side (a/b)
+    const hcfAN = hcf(currentValues.a, Math.abs(n));
+    const leftMultiplier = n / hcfAN;
+    currentValues.a = currentValues.a / hcfAN;
+    currentValues.b = currentValues.b * leftMultiplier;
+    
+    // Handle right side (g/h)
+    const hcfGN = hcf(currentValues.g, Math.abs(n));
+    const rightMultiplier = n / hcfGN;
+    currentValues.g = currentValues.g / hcfGN;
+    currentValues.h = currentValues.h * rightMultiplier;
+    
+    return true;
+  }
+  
+  // Original logic for other cases remains unchanged
+  // Case 1: Left side is 1, right side isn't 1
+  else if (leftSideValue === 1 && rightSideValue !== 1) {
+    const hcfGN = hcf(currentValues.g, Math.abs(n));
+    const multiplier = n / hcfGN;
+    currentValues.g = currentValues.g / hcfGN;
+    currentValues.h = currentValues.h * multiplier;
+    
+    // Handle c/d
+    const hcfNC = hcf(n, currentValues.c);
+    currentValues.d = currentValues.d * (n / hcfNC);
+    currentValues.c = currentValues.c / hcfNC;
+    
+    // Handle e/f
+    const hcfNE = hcf(n, currentValues.e);
+    currentValues.f = currentValues.f * (n / hcfNE);
+    currentValues.e = currentValues.e / hcfNE;
+    return true;
+  }
+  // Case 2: Right side is 1, left side isn't 1
+  else if (rightSideValue === 1 && leftSideValue !== 1) {
+    const hcfAN = hcf(currentValues.a, Math.abs(n));
+    const multiplier = n / hcfAN;
+    currentValues.a = currentValues.a / hcfAN;
+    currentValues.b = currentValues.b * multiplier;
+    
+    // Handle i/j
+    const hcfNI = hcf(n, currentValues.i);
+    currentValues.j = currentValues.j * (n / hcfNI);
+    currentValues.i = currentValues.i / hcfNI;
+    
+    // Handle k/l
+    const hcfNK = hcf(n, currentValues.k);
+    currentValues.l = currentValues.l * (n / hcfNK);
+    currentValues.k = currentValues.k / hcfNK;
+    return true;
+  }
+  
+  return false;
+}
+  
   // Try basic multiply command
   if ((match = command.match(commandPatterns.multiply))) {
     const n = parseInt(match[1] || match[2]);
