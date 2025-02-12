@@ -1,39 +1,81 @@
 <style>
 .command-box {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background-color: #f5f5dc;
     border: 1px solid #ddd;
-    padding: 15px;
-    margin: 10px 0;
     border-radius: 4px;
+    padding: 15px;
+    width: 80px;
+    height: 40px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 1000;
+    color: #666;
+}
+
+.command-box:hover {
+    width: 600px;
+    height: 400px;
+    overflow-y: auto;
+    background-color: #f5f5dc;
 }
 
 .command-box .title {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin-bottom: 10px;
     font-weight: bold;
 }
 
-.command-box .content h3 {
-    margin: 10px 0 5px 0;
+.command-box .title span {
+    display: block;
+    font-size: 14px;
 }
 
-.command-box ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
+.command-box .content {
+    display: none;
+    margin-top: 15px;
+    font-size: 14px;
+    line-height: 1.6;
 }
 
-.command-box li {
-    margin: 5px 0;
-    padding: 0;
+.command-box:hover .content {
+    display: block;
+}
+
+.command-box h3 {
+    margin: 20px 0 10px 0;
+    font-size: 16px;
+    font-weight: bold;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+}
+
+.command-box h3:first-of-type {
+    margin-top: 10px;
+    padding-top: 0;
+    border-top: none;
 }
 
 .command-box pre {
     display: inline;
     background-color: #f5f5f5;
-    padding: 2px 4px;
+    padding: 2px 6px;
     border-radius: 3px;
     font-family: monospace;
+    margin: 0 2px;
+}
+
+.command-box .command-line {
+    margin: 8px 0;
+    padding-left: 20px;
+    text-indent: -20px;
+    white-space: pre-line;
 }
 </style>
 
@@ -44,15 +86,15 @@
     </div>
     <div class="content">
         <h3>Commands:</h3>
-        <pre>*n</pre> or <pre>xn</pre> - Multiply both sides by a number (also negatives, eg x-3)
-        <pre>*n/m</pre> or <pre>xn/m</pre> - Multiply by a fraction (eg *-1/4)
-        <pre>/n</pre> - Divide by a number
-        <pre>lhs*()n/m</pre> - Multiply left bracket by n/m (also 'rhs', 'x', 'br', integer and negative inputs, eg rhsxbr-4)
-        <pre>lhs/n,/n</pre> - Simplifies fraction on left side (also 'rhs')
-        <pre>a/b=c/d</pre> - Replaces any seen fraction with an equivalent fraction (also <pre>n/m=p</pre> and <pre>n=p/q</pre>)
+        <div class="command-line"><pre>*n</pre> or <pre>xn</pre> - Multiply both sides by a number (also negatives, eg x-3)</div>
+        <div class="command-line"><pre>*n/m</pre> or <pre>xn/m</pre> - Multiply by a fraction (eg *-1/4)</div>
+        <div class="command-line"><pre>/n</pre> - Divide by a number</div>
+        <div class="command-line"><pre>lhs*()n/m</pre> - Multiply left bracket by n/m (also 'rhs', 'x', 'br', integer and negative inputs, eg rhsxbr-4)</div>
+        <div class="command-line"><pre>lhs/n,/n</pre> - Simplifies fraction on left side (also 'rhs')</div>
+        <div class="command-line"><pre>a/b=c/d</pre> - Replaces any seen fraction with an equivalent fraction (also <pre>n/m=p</pre> and <pre>n=p/q</pre>)</div>
         
         <h3>Additional commands when brackets are removed:</h3>
-        <pre>+n</pre>, <pre>-n</pre>, <pre>+n/m</pre>, <pre>-n/m</pre> - Add or subtract a constant to both sides
-        <pre>+nx</pre>, <pre>-nx</pre>, <pre>+n/mx</pre>, <pre>-n/mx</pre> - Add or subtract a term with x (eg -4/5x)
+        <div class="command-line"><pre>+n</pre>, <pre>-n</pre>, <pre>+n/m</pre>, <pre>-n/m</pre> - Add or subtract a constant to both sides</div>
+        <div class="command-line"><pre>+nx</pre>, <pre>-nx</pre>, <pre>+n/mx</pre>, <pre>-n/mx</pre> - Add or subtract a term with x (eg -4/5x)</div>
     </div>
 </div>
