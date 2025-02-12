@@ -1,4 +1,5 @@
 // phase1-commands.js
+
 function processPhase1Command(command, currentValues) {
   // Try fraction equality command first (from common-commands.js)
   if (processFractionEquality(command, currentValues)) {
@@ -36,10 +37,7 @@ function processPhase1Command(command, currentValues) {
     return a;
   }
 
-  // Try basic multiply command
-  if (command.match(commandPatterns.multiply)) {
-    const match = command.match(/^\*(-?\d+)$/) || command.match(/^x(-?\d+)$/);
-    const n = parseInt(match[1]);
+  function handleMultiply(n, currentValues) {
     if (n === 0) return false;
 
     const leftSideValue = evaluateFraction(currentValues.a, currentValues.b);
@@ -51,8 +49,16 @@ function processPhase1Command(command, currentValues) {
       const multiplier = n / hcfHN;
       currentValues.h = currentValues.h / hcfHN;
       currentValues.g = currentValues.g * multiplier;
-      currentValues.c = currentValues.c * n;
-      currentValues.e = currentValues.e * n;
+      
+      // Handle c/d
+      const hcfND = hcf(n, currentValues.d);
+      currentValues.c = currentValues.c * (n / hcfND);
+      currentValues.d = currentValues.d / hcfND;
+      
+      // Handle e/f
+      const hcfNF = hcf(n, currentValues.f);
+      currentValues.e = currentValues.e * (n / hcfNF);
+      currentValues.f = currentValues.f / hcfNF;
     }
     // Case 2: Right side is 1, left side isn't 1
     else if (rightSideValue === 1 && leftSideValue !== 1) {
@@ -60,8 +66,16 @@ function processPhase1Command(command, currentValues) {
       const multiplier = n / hcfBN;
       currentValues.b = currentValues.b / hcfBN;
       currentValues.a = currentValues.a * multiplier;
-      currentValues.i = currentValues.i * n;
-      currentValues.k = currentValues.k * n;
+      
+      // Handle i/j
+      const hcfNJ = hcf(n, currentValues.j);
+      currentValues.i = currentValues.i * (n / hcfNJ);
+      currentValues.j = currentValues.j / hcfNJ;
+      
+      // Handle k/l
+      const hcfNL = hcf(n, currentValues.l);
+      currentValues.k = currentValues.k * (n / hcfNL);
+      currentValues.l = currentValues.l / hcfNL;
     }
     // Case 3: Neither side is 1
     else if (leftSideValue !== 1 && rightSideValue !== 1) {
@@ -82,10 +96,7 @@ function processPhase1Command(command, currentValues) {
     return true;
   }
 
-  // Try basic divide command
-  if (command.match(commandPatterns.divide)) {
-    const match = command.match(/^\/(-?\d+)$/);
-    const n = parseInt(match[1]);
+  function handleDivide(n, currentValues) {
     if (n === 0) return false;
 
     const leftSideValue = evaluateFraction(currentValues.a, currentValues.b);
@@ -97,8 +108,16 @@ function processPhase1Command(command, currentValues) {
       const multiplier = n / hcfGN;
       currentValues.g = currentValues.g / hcfGN;
       currentValues.h = currentValues.h * multiplier;
-      currentValues.d = currentValues.d * n;
-      currentValues.f = currentValues.f * n;
+      
+      // Handle c/d
+      const hcfNC = hcf(n, currentValues.c);
+      currentValues.d = currentValues.d * (n / hcfNC);
+      currentValues.c = currentValues.c / hcfNC;
+      
+      // Handle e/f
+      const hcfNE = hcf(n, currentValues.e);
+      currentValues.f = currentValues.f * (n / hcfNE);
+      currentValues.e = currentValues.e / hcfNE;
     }
     // Case 2: Right side is 1, left side isn't 1
     else if (rightSideValue === 1 && leftSideValue !== 1) {
@@ -106,8 +125,16 @@ function processPhase1Command(command, currentValues) {
       const multiplier = n / hcfAN;
       currentValues.a = currentValues.a / hcfAN;
       currentValues.b = currentValues.b * multiplier;
-      currentValues.j = currentValues.j * n;
-      currentValues.l = currentValues.l * n;
+      
+      // Handle i/j
+      const hcfNI = hcf(n, currentValues.i);
+      currentValues.j = currentValues.j * (n / hcfNI);
+      currentValues.i = currentValues.i / hcfNI;
+      
+      // Handle k/l
+      const hcfNK = hcf(n, currentValues.k);
+      currentValues.l = currentValues.l * (n / hcfNK);
+      currentValues.k = currentValues.k / hcfNK;
     }
     // Case 3: Neither side is 1
     else if (leftSideValue !== 1 && rightSideValue !== 1) {
@@ -126,6 +153,18 @@ function processPhase1Command(command, currentValues) {
       }
     }
     return true;
+  }
+
+  // Try basic multiply command
+  if ((match = command.match(commandPatterns.multiply))) {
+    const n = parseInt(match[1] || match[2]);
+    return handleMultiply(n, currentValues);
+  }
+
+  // Try basic divide command
+  if ((match = command.match(commandPatterns.divide))) {
+    const n = parseInt(match[1]);
+    return handleDivide(n, currentValues);
   }
   
   // Multiply fraction command
