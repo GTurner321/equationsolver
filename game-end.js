@@ -94,13 +94,15 @@ function checkWinCondition(values) {
 }
 
 /**
- * Formats a solution as a LaTeX fraction
+ * Formats a solution in the most appropriate format:
+ * - Integer if denominator is 1
+ * - Mixed number if improper fraction
+ * - Proper fraction otherwise
  * @param {number} num - Numerator
  * @param {number} den - Denominator
- * @param {boolean} forceMixed - Force mixed number format even for proper fractions
- * @returns {string} LaTeX formatted fraction
+ * @returns {string} LaTeX formatted number
  */
-function formatSolution(num, den, forceMixed = false) {
+function formatSolution(num, den) {
   // Handle special cases
   if (den === 0) return "undefined";
   if (num === 0) return "0";
@@ -110,13 +112,13 @@ function formatSolution(num, den, forceMixed = false) {
   num = Math.abs(num);
   den = Math.abs(den);
   
-  // If denominator is 1, just return the number
+  // If denominator is 1, just return the integer
   if (den === 1) {
     return isNegative ? `-${num}` : `${num}`;
   }
   
-  // For improper fractions or when mixed format is forced
-  if (num >= den || forceMixed) {
+  // For improper fractions, convert to mixed number
+  if (num >= den) {
     const wholePart = Math.floor(num / den);
     const remainder = num % den;
     
@@ -129,7 +131,7 @@ function formatSolution(num, den, forceMixed = false) {
     return `${isNegative ? '-' : ''}${wholePart}\\frac{${remainder}}{${den}}`;
   }
   
-  // Regular fraction (only for non-forced mixed numbers)
+  // Regular proper fraction
   return `${isNegative ? '-' : ''}\\frac{${num}}{${den}}`;
 }
 
@@ -144,17 +146,8 @@ function displayWinMessage(winCondition) {
   const winMessage = document.createElement('div');
   winMessage.className = 'win-message';
   
-  // Get improper fraction representation
-  const improperFraction = formatSolution(winCondition.num, winCondition.den);
-  
-  // Only get mixed number if it's an improper fraction
-  let solution;
-  if (Math.abs(winCondition.num) >= Math.abs(winCondition.den)) {
-    const mixedNumber = formatSolution(winCondition.num, winCondition.den, true);
-    solution = `${improperFraction} = ${mixedNumber}`;
-  } else {
-    solution = improperFraction;
-  }
+  // Format the solution in the most appropriate format
+  const solution = formatSolution(winCondition.num, winCondition.den);
   
   // Create the message with MathJax formatting
   winMessage.innerHTML = `
