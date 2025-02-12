@@ -61,11 +61,13 @@ class Grid {
             display: grid;
             grid-template-columns: repeat(${this.width}, 1fr);
             width: 100%;
-            height: 100%;
+            height: 360vh;
             gap: 0;
             position: absolute;
             top: 0;
             left: 0;
+            transform: translateY(0);
+            will-change: transform;
         `;
         this.gridElement.appendChild(gridDiv);
         
@@ -87,7 +89,8 @@ class Grid {
 
     markRandomCells() {
         let markedCount = 0;
-        while (markedCount < 120) {
+        const targetMarkedCells = Math.floor(this.width * this.height * 0.1); // 10% of cells
+        while (markedCount < targetMarkedCells) {
             const cell = this.getRandomCell();
             if (!cell.isMarked) {
                 cell.setMarked();
@@ -97,26 +100,14 @@ class Grid {
     }
 
     updateBoundaries() {
-        let lowestActive = 0;
-        for (let y = this.height - 1; y >= 0; y--) {
-            if (this.cells[y].some(cell => cell.state === 2 || cell.state === 8)) {
-                lowestActive = y;
-                break;
-            }
-        }
-
-        let highestActive = 0;
-        if (this.iterationCount > 20) {
-            for (let y = 0; y < this.height; y++) {
-                if (this.cells[y].some(cell => cell.state === 2 || cell.state === 8)) {
-                    highestActive = y;
-                    break;
-                }
-            }
-        }
-
-        this.lowerBound = this.iterationCount > 20 ? Math.max(0, highestActive - 4) : 0;
-        this.upperBound = Math.min(this.height - 1, Math.max(16, lowestActive + 4));
+        // Calculate visible area based on scroll position
+        const scrollPercentage = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+        const visibleCenter = Math.floor(this.height * scrollPercentage);
+        
+        // Update bounds to focus on visible area plus buffer
+        const bufferSize = Math.ceil(window.innerHeight / 20); // Adjust based on cell size
+        this.lowerBound = Math.max(0, visibleCenter - bufferSize);
+        this.upperBound = Math.min(this.height - 1, visibleCenter + bufferSize);
     }
 
     getNeighbors(x, y, isDiagonal) {
@@ -173,7 +164,7 @@ class Grid {
                 switch (cell.state) {
                     case 1:
                         if (this.allCellsInS1orS8()) {
-                            if (y < 10) {
+                            if (y < this.upperBound - 10) {
                                 newStates[y][x] = Math.random() < 1/180 ? 2 : 1;
                             } else {
                                 newStates[y][x] = 1;
@@ -214,6 +205,7 @@ class Grid {
             }
         }
 
+        // Update states for cells in visible range
         for (let y = this.lowerBound; y <= this.upperBound; y++) {
             for (let x = 0; x < this.width; x++) {
                 if (newStates[y][x] !== null) {
@@ -224,15 +216,14 @@ class Grid {
     }
 }
 
-// Initialize the grid
+// Initialize the grid with specified dimensions
 const GRID_WIDTH = 36;
 const GRID_HEIGHT = 360;
 
 function initializeBackground() {
-    // Create new grid
     const grid = new Grid(GRID_WIDTH, GRID_HEIGHT);
     
-    // Start update loop with same interval as original
+    // Start update loop
     setInterval(() => grid.update(), 1000);
 }
 
