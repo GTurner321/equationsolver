@@ -51,6 +51,7 @@ function formatExpression(outer1, outer2, c, d, e, f) {
   // Check if outer fraction evaluates to 1 or -1
   const isOne = outer1 === outer2;
   const isNegOne = outer1 === -outer2;
+  const needsBrackets = !isOne;  // Changed: Now we need brackets unless outer fraction is exactly 1
 
   // Handle outer fraction
   if (isOne) {
@@ -71,13 +72,12 @@ function formatExpression(outer1, outer2, c, d, e, f) {
   if (d === f) {
     if (Math.abs(d) === 1) {
       const numerator = formatCombinedNumerator(c * Math.sign(d), e * Math.sign(d));
-      // Only add brackets if we have a negative outer coefficient
-      return isNegOne ? `${result}\\left(${numerator}\\right)` : `${result}${numerator}`;
+      return needsBrackets ? `${result}\\left(${numerator}\\right)` : `${result}${numerator}`;
     }
     
     const numerator = formatCombinedNumerator(c, e);
     const fraction = formatFraction(1, d, true).replace('1', numerator);
-    return isNegOne ? `${result}\\left(${fraction}\\right)` : `${result}${fraction}`;
+    return needsBrackets ? `${result}\\left(${fraction}\\right)` : `${result}${fraction}`;
   }
 
   // Handle regular expressions
@@ -96,8 +96,7 @@ function formatExpression(outer1, outer2, c, d, e, f) {
   const cTerm = d === 1 ? formatXCoefficient(c) : `${formatFraction(c, d)}x`;
 
   const innerExpression = `${cTerm} ${sign} ${fractionEF}`;
-  // Only add brackets if we have a negative outer coefficient
-  return isNegOne ? `${result}\\left(${innerExpression}\\right)` : `${result}${innerExpression}`;
+  return needsBrackets ? `${result}\\left(${innerExpression}\\right)` : `${result}${innerExpression}`;
 }
 
 function formatConstants(values) {
