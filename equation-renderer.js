@@ -47,15 +47,15 @@ function formatFraction(num, den, isCombined = false) {
 function formatExpression(outer1, outer2, c, d, e, f) {
   if (c === 0 && e === 0) return "0";
 
-  // Handle cases where outer fraction has denominator ±1
-  const outerValue = outer2 === 1 ? outer1 : (outer2 === -1 ? -outer1 : null);
   let result = "";
+  const needsBrackets = outer1 !== outer2; // Check if outer fraction ≠ 1
 
-  if (outerValue !== null) {
-    if (outerValue === -1) {
-      result += "-";
-    } else if (outerValue !== 1) {
-      result += `${outerValue}`;
+  // Handle outer fraction
+  if (Math.abs(outer2) === 1) {
+    if (outer2 === -1) {
+      result += outer1 === 1 ? "-" : `${-outer1}`;
+    } else if (outer1 !== 1) {
+      result += `${outer1}`;
     }
   } else {
     result += formatFraction(outer1, outer2);
@@ -63,22 +63,14 @@ function formatExpression(outer1, outer2, c, d, e, f) {
 
   // Handle combined fractions
   if (d === f) {
-    // Special case: denominator is ±1
     if (Math.abs(d) === 1) {
       const numerator = formatCombinedNumerator(c * Math.sign(d), e * Math.sign(d));
-      if (outerValue === -1 || (outerValue !== 1 && outerValue !== null)) {
-        return `${result}\\left(${numerator}\\right)`;
-      }
-      return `${result}${numerator}`;
+      return needsBrackets ? `${result}\\left(${numerator}\\right)` : `${result}${numerator}`;
     }
     
     const numerator = formatCombinedNumerator(c, e);
     const fraction = formatFraction(1, d, true).replace('1', numerator);
-    
-    if (outerValue === -1 || (outerValue !== 1 && outerValue !== null)) {
-      return `${result}\\left(${fraction}\\right)`;
-    }
-    return `${result}${fraction}`;
+    return needsBrackets ? `${result}\\left(${fraction}\\right)` : `${result}${fraction}`;
   }
 
   // Handle regular expressions
@@ -86,7 +78,9 @@ function formatExpression(outer1, outer2, c, d, e, f) {
     return `${result}${formatFraction(e, f)}`;
   }
   if (e === 0) {
-    return d === 1 ? `${result}${formatXCoefficient(c)}` : `${result}${formatFraction(c, d)}x`;
+    return d === 1 ? 
+      `${result}${formatXCoefficient(c)}` : 
+      `${result}${formatFraction(c, d)}x`;
   }
 
   const isEFNegative = (e * f) < 0;
@@ -95,13 +89,8 @@ function formatExpression(outer1, outer2, c, d, e, f) {
   const cTerm = d === 1 ? formatXCoefficient(c) : `${formatFraction(c, d)}x`;
 
   const innerExpression = `${cTerm} ${sign} ${fractionEF}`;
-  
-  if (outerValue === -1 || (outerValue !== 1 && outerValue !== null)) {
-    return `${result}\\left(${innerExpression}\\right)`;
-  }
-  return `${result}${innerExpression}`;
+  return needsBrackets ? `${result}\\left(${innerExpression}\\right)` : `${result}${innerExpression}`;
 }
-
 function formatConstants(values) {
   return `a=${values.a}, b=${values.b}, c=${values.c}, d=${values.d}, ` +
          `e=${values.e}, f=${values.f}, g=${values.g}, h=${values.h}, ` +
