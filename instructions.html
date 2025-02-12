@@ -1,22 +1,58 @@
+<style>
+.command-box {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 4px;
+}
+
+.command-box .title {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.command-box .content h3 {
+    margin: 10px 0 5px 0;
+}
+
+.command-box ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.command-box li {
+    margin: 5px 0;
+    padding: 0;
+}
+
+.command-box pre {
+    display: inline;
+    background-color: #f5f5f5;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: monospace;
+}
+</style>
+
 <div class="command-box">
-  <div class="title">
-    <span>USER</span>
-    <span>COMMANDS</span>
-  </div>
-  <div class="content">
-    <h3>Commands:</h3>
-    <ul>
-      <li><pre>*n</pre> or <pre>xn</pre> - Multiply both sides by a number (also negatives, eg x-3)</li>
-      <li><pre>*n/m</pre> or <pre>xn/m</pre> - Multiply by a fraction (eg *-1/4)</li>
-      <li><pre>/n</pre> - Divide by a number</li>
-      <li><pre>lhs*()n/m</pre> - Multiply left bracket by n/m (also 'rhs', 'x', 'br', integer and negative inputs, eg rhsxbr-4)</li>
-      <li><pre>lhs/n,/n</pre> - Simplifies fraction on left side (also 'rhs')</li>
-      <li><pre>a/b=c/d</pre> - Replaces any seen fraction with an equivalent fraction (also <pre>n/m=p</pre> and <pre>n=p/q</pre>)</li>
-    </ul>
-    <h3>Additional commands when brackets are removed:</h3>
-    <ul>
-      <li><pre>+n</pre>, <pre>-n</pre>, <pre>+n/m</pre>, <pre>-n/m</pre> - Add or subtract a constant to both sides</li>
-      <li><pre>+nx</pre>, <pre>-nx</pre>, <pre>+n/mx</pre>, <pre>-n/mx</pre> - Add or subtract a term with x (eg -4/5x)</li>
-    </ul>
-  </div>
+    <div class="title">
+        <span>USER</span>
+        <span>COMMANDS</span>
+    </div>
+    <div class="content">
+        <h3>Commands:</h3>
+        <pre>*n</pre> or <pre>xn</pre> - Multiply both sides by a number (also negatives, eg x-3)
+        <pre>*n/m</pre> or <pre>xn/m</pre> - Multiply by a fraction (eg *-1/4)
+        <pre>/n</pre> - Divide by a number
+        <pre>lhs*()n/m</pre> - Multiply left bracket by n/m (also 'rhs', 'x', 'br', integer and negative inputs, eg rhsxbr-4)
+        <pre>lhs/n,/n</pre> - Simplifies fraction on left side (also 'rhs')
+        <pre>a/b=c/d</pre> - Replaces any seen fraction with an equivalent fraction (also <pre>n/m=p</pre> and <pre>n=p/q</pre>)
+        
+        <h3>Additional commands when brackets are removed:</h3>
+        <pre>+n</pre>, <pre>-n</pre>, <pre>+n/m</pre>, <pre>-n/m</pre> - Add or subtract a constant to both sides
+        <pre>+nx</pre>, <pre>-nx</pre>, <pre>+n/mx</pre>, <pre>-n/mx</pre> - Add or subtract a term with x (eg -4/5x)
+    </div>
 </div>
