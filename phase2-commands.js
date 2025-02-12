@@ -12,8 +12,8 @@ function processPhase2Command(command, currentValues) {
     divide: /^\/(-?\d+)$/,
     addConstant: /^\+(\d+)\/(\d+)$|^\+(\d+)$/,
     subtractConstant: /^-(\d+)\/(\d+)$|^-(\d+)$/,
-    addXTerm: /^\+(\d+)\/(\d+)x$|^\+(\d+)x$/,
-    subtractXTerm: /^-(\d+)\/(\d+)x$|^-(\d+)x$/,
+    addXTerm: /^\+(\d+)\/(\d+)x$|^\+(\d+)x$|^\+x$/,  // Added +x pattern
+    subtractXTerm: /^-(\d+)\/(\d+)x$|^-(\d+)x$|^-x$/,  // Added -x pattern
     lhsDivide: /^lhs\/(-?\d+),\/(-?\d+)$/,
     rhsDivide: /^rhs\/(-?\d+),\/(-?\d+)$/
   };
@@ -144,13 +144,15 @@ function processPhase2Command(command, currentValues) {
 
   // Add/subtract x term
   if ((match = command.match(patterns.addXTerm))) {
-    const n = parseInt(match[1] || match[3]);
-    const m = parseInt(match[2] || 1);
+    // If the command is just '+x', use n=1, m=1
+    const n = match[0] === '+x' ? 1 : parseInt(match[1] || match[3]);
+    const m = match[0] === '+x' ? 1 : parseInt(match[2] || 1);
     return processXTerm(n, m);
   }
   if ((match = command.match(patterns.subtractXTerm))) {
-    const n = parseInt(match[1] || match[3]);
-    const m = parseInt(match[2] || 1);
+    // If the command is just '-x', use n=1, m=1
+    const n = match[0] === '-x' ? 1 : parseInt(match[1] || match[3]);
+    const m = match[0] === '-x' ? 1 : parseInt(match[2] || 1);
     return processXTerm(n, m, true);
   }
 
