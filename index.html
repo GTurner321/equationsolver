@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Equation Transformation Game</title>
+  <link rel="stylesheet" href="instructions.css">
   
   <!-- MathJax Configuration -->
   <script>
@@ -135,6 +136,9 @@
   </style>
 </head>
 <body>
+  <!-- Instructions container -->
+  <div id="instructions-container"></div>
+
   <div class="container">
     <h1>Equation Transformation Game</h1>
     <button class="generate-btn" onclick="startGame()">Generate New Equation</button>
@@ -147,6 +151,15 @@
       <div id="input-container"></div>
     </div>
   </div>
+
+  <!-- Load instructions -->
+  <script>
+    fetch('instructions.html')
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('instructions-container').innerHTML = html;
+      });
+  </script>
 
   <!-- Load game scripts -->
   <script src="equation-generator.js"></script>
