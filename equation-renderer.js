@@ -35,7 +35,15 @@ function formatFraction(num, den, isCombined = false) {
     return isNegative ? `-${absNum}` : `${absNum}`;
   }
   
-  return `${isNegative ? '-' : ''}\\frac{${absNum}}{${absDen}}`;
+  if (isCombined) {
+    // For combined fractions, keep negative sign with denominator
+    const signedDen = den < 0 ? -absDen : absDen;
+    const signedNum = num < 0 ? -absNum : absNum;
+    return `\\frac{${signedNum}}{${signedDen}}`;
+  } else {
+    // For regular fractions, keep current behavior
+    return `${isNegative ? '-' : ''}\\frac{${absNum}}{${absDen}}`;
+  }
 }
 
 function formatExpression(outer1, outer2, c, d, e, f) {
