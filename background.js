@@ -1,3 +1,23 @@
+// Add the cell styles to document
+const style = document.createElement('style');
+style.textContent = `
+    .cell {
+        aspect-ratio: 1;
+        transition: background-color 0.3s ease;
+    }
+
+    /* State colors matching original implementation */
+    .s1 { background-color: #f0f8ff; } /* Background */
+    .s2 { background-color: #f0f8ff; } /* Background */
+    .s3 { background-color: #e0ebf5; } /* Light blue */
+    .s4 { background-color: #d0e1f2; } /* Slightly darker */
+    .s5 { background-color: #c0d7ef; } /* Slightly darker still */
+    .s6 { background-color: #d0e1f2; } /* Same as S4 */
+    .s7 { background-color: #e0ebf5; } /* Same as old S6 */
+    .s8 { background-color: #f0f8ff; } /* Background */
+`;
+document.head.appendChild(style);
+
 class Cell {
     constructor(x, y) {
         this.x = x;
@@ -59,7 +79,6 @@ class Grid {
         }
     }
 
-    // Rest of the Grid class methods remain the same as in your original code
     getRandomCell() {
         const y = Math.floor(Math.random() * this.height);
         const x = Math.floor(Math.random() * this.width);
@@ -205,13 +224,21 @@ class Grid {
     }
 }
 
-// Add cell styles to document
-const style = document.createElement('style');
-style.textContent = `
-    .cell {
-        aspect-ratio: 1;
-        transition: background-color 0.3s ease;
-    }
+// Initialize the grid
+const GRID_WIDTH = 36;
+const GRID_HEIGHT = 360;
 
-    /* Updated state colors with increased transparency */
-    .s1 { background-color: rgba(240, 248, 255, 0
+function initializeBackground() {
+    // Create new grid
+    const grid = new Grid(GRID_WIDTH, GRID_HEIGHT);
+    
+    // Start update loop with same interval as original
+    setInterval(() => grid.update(), 500);
+}
+
+// Start the background when the document is loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeBackground);
+} else {
+    initializeBackground();
+}
