@@ -70,8 +70,7 @@ function checkWinCondition(values) {
       won: true,
       solution: solution.value,
       num: solution.num,
-      den: solution.den,
-      form: "right"
+      den: solution.den
     };
   }
   
@@ -82,8 +81,7 @@ function checkWinCondition(values) {
       won: true,
       solution: solution.value,
       num: solution.num,
-      den: solution.den,
-      form: "left"
+      den: solution.den
     };
   }
   
@@ -149,7 +147,7 @@ function displayWinMessage(winCondition) {
   // Format the solution in the most appropriate format
   const solution = formatSolution(winCondition.num, winCondition.den);
   
-  // Create the message with MathJax formatting
+  // Create the message with MathJax formatting and new equation button
   winMessage.innerHTML = `
     <div class="congratulations">
       Well done! You have solved the equation.
@@ -157,9 +155,7 @@ function displayWinMessage(winCondition) {
     <div class="solution">
       \\[x = ${solution}\\]
     </div>
-    <div class="method">
-      Solution found from the ${winCondition.form} side of the equation
-    </div>
+    <button class="generate-btn" onclick="startGame()">Generate New Equation</button>
   `;
   
   // Add the message to the container
