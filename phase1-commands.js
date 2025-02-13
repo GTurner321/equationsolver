@@ -1,4 +1,4 @@
-Copyconsole.log('[DEBUG] phase1-commands.js is being loaded');
+console.log('[DEBUG] phase1-commands.js is being loaded');
 
 function processPhase1Command(command, currentValues) {
   console.log('[DEBUG] processPhase1Command function defined');
@@ -334,7 +334,7 @@ function processPhase1Command(command, currentValues) {
         return success;
       }
 
- return false;
+return false;
 }
 
 console.log('[DEBUG] Assigning processPhase1Command to window');
