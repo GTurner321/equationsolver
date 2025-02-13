@@ -303,17 +303,11 @@ function startGame(level = 1) {
     console.log('Generated values:', values);
     
     if (values) {
-        try {
-            gameState.currentEquation = createEquation(values);
-            console.log('Created equation:', gameState.currentEquation);
-            gameState.isActive = true;
-            
-            displayEquation(gameState.currentEquation);
-            displayConstants();
-            createInputBox();
-        } catch (error) {
-            console.error('Error creating equation:', error);
-        }
+        gameState.currentEquation = createEquation(values);
+        gameState.isActive = true;
+        
+        initializeEquationDisplay(values);
+        createInputBox();
     }
 }
 
