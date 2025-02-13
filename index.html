@@ -6,7 +6,6 @@
     <title>Equation Solving Game</title>
 
     <script>
-        // Game state management
         let gameState = {
             isActive: false,
             currentEquation: null,
@@ -23,7 +22,6 @@
             };
         }
 
-        // MathJax configuration
         window.MathJax = {
             tex: {
                 inlineMath: [['$', '$'], ['\\(', '\\)']],
@@ -32,7 +30,6 @@
             startup: {
                 ready: () => {
                     MathJax.startup.defaultReady();
-                    startGame();
                 }
             }
         };
@@ -76,15 +73,9 @@
         }
 
         @keyframes shimmer {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         #background-container::before {
@@ -113,12 +104,8 @@
         }
 
         @keyframes subtle-movement {
-            0% {
-                background-position: 0 0, 30px 30px;
-            }
-            100% {
-                background-position: 60px 60px, 90px 90px;
-            }
+            0% { background-position: 0 0, 30px 30px; }
+            100% { background-position: 60px 60px, 90px 90px; }
         }
 
         #background-container::after {
@@ -263,113 +250,92 @@
         </div>
     </div>
 
-    // Update the startGame function with debug logging
-function startGame() {
-    console.log('Starting new game...');
-    
-    // Reset the game state
-    resetGameState();
-    console.log('Game state reset:', gameState);
-    
-    // Clear previous game elements
-    document.getElementById('history-container').innerHTML = '';
-    document.getElementById('original-constants').innerHTML = '';
-    document.getElementById('simplified-constants').innerHTML = '';
-    document.getElementById('initial-equation').innerHTML = '';
-    document.getElementById('input-container').innerHTML = '';
-    console.log('Cleared previous game elements');
-    
-    try {
-        // Generate new equation and constants
-        console.log('Generating new equation...');
-        const equation = generateNewEquation();  // Your existing equation generation function
-        console.log('Generated equation:', equation);
-        
-        if (!equation) {
-            console.error('No equation was generated');
-            return;
-        }
-        
-        gameState.currentEquation = equation;
-        gameState.isActive = true;
-        console.log('Updated game state with new equation:', gameState);
-        
-        // Display new equation and constants
-        console.log('Displaying equation...');
-        displayEquation(equation);
-        console.log('Displaying constants...');
-        displayConstants();
-        
-        // Create and display the input box
-        console.log('Creating input box...');
-        createInputBox();
-        
-        console.log('Game setup complete');
-    } catch (error) {
-        console.error('Error in startGame:', error);
-    }
-}
-
-function displayEquation(equation) {
-    console.log('displayEquation called with:', equation);
-    
-    if (!equation) {
-        console.error('No equation provided to displayEquation');
-        return;
-    }
-    
-    try {
-        const initialEquationDiv = document.getElementById('initial-equation');
-        if (!initialEquationDiv) {
-            console.error('Could not find initial-equation element');
-            return;
-        }
-        
-        console.log('Converting equation to TeX...');
-        const texEquation = equation.toTeX();
-        console.log('TeX equation:', texEquation);
-        
-        initialEquationDiv.innerHTML = `
-            <div class="equation">
-                Initial equation: ${texEquation}
-            </div>
-        `;
-        
-        // Trigger MathJax to process the new content
-        if (window.MathJax) {
-            console.log('Processing with MathJax...');
-            MathJax.typesetPromise([initialEquationDiv])
-                .then(() => console.log('MathJax processing complete'))
-                .catch(err => console.error('MathJax error:', err));
-        } else {
-            console.warn('MathJax not available');
-        }
-    } catch (error) {
-        console.error('Error in displayEquation:', error);
-    }
-}
-
-// Make sure generateNewEquation is properly defined and exported
-if (typeof generateNewEquation !== 'function') {
-    console.error('generateNewEquation is not defined! Check if equation-generator.js is loaded properly');
-}
-
-// Add event listener with error handling
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM Content Loaded');
-    const generateBtn = document.querySelector('.generate-btn');
-    if (generateBtn) {
-        console.log('Generate button found, adding click listener');
-        generateBtn.addEventListener('click', () => {
-            console.log('Generate button clicked');
-            startGame();
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.MathJax) {
+                window.MathJax.startup.promise.then(() => {
+                    initializeGame();
+                });
+            }
         });
-    } else {
-        console.error('Generate button not found in DOM');
-    }
-});
+
+        function initializeGame() {
+            const generateBtn = document.querySelector('.generate-btn');
+            if (generateBtn) {
+                generateBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (typeof generateNewEquation === 'function' && 
+                        typeof displayEquation === 'function' && 
+                        typeof displayConstants === 'function') {
+                        startGame();
+                    }
+                });
+            }
+            startGame();
+        }
+
+        function startGame() {
+            resetGameState();
+            
+            document.getElementById('history-container').innerHTML = '';
+            document.getElementById('original-constants').innerHTML = '';
+            document.getElementById('simplified-constants').innerHTML = '';
+            document.getElementById('initial-equation').innerHTML = '';
+            document.getElementById('input-container').innerHTML = '';
+            
+            const equation = generateNewEquation();
+            if (equation) {
+                gameState.currentEquation = equation;
+                gameState.isActive = true;
+                
+                displayEquation(equation);
+                displayConstants();
+                createInputBox();
+            }
+        }
+
+        function createInputBox() {
+            const inputContainer = document.getElementById('input-container');
+            inputContainer.innerHTML = `
+                <div class="input-box">
+                    <input type="text" id="command-input" placeholder="Enter your command...">
+                </div>
+            `;
+            
+            const input = document.getElementById('command-input');
+            if (input) {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        handleCommand(this.value);
+                        this.value = '';
+                    }
+                });
+            }
+        }
+
+        function displayEquation(equation) {
+            if (!equation) return;
+            
+            const initialEquationDiv = document.getElementById('initial-equation');
+            initialEquationDiv.innerHTML = `
+                <div class="equation">
+                    Initial equation: ${equation.toTeX()}
+                </div>
+            `;
+            
+            if (window.MathJax) {
+                window.MathJax.typesetPromise([initialEquationDiv]);
+            }
+        }
+
+        fetch('instructions.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('instructions').innerHTML = html;
+            })
+            .catch(error => {});
+    </script>
     
-    <!-- Load your game scripts -->
     <script src="equation-generator.js"></script>
     <script src="equation-renderer.js"></script>
     <script src="common-commands.js"></script>
