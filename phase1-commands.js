@@ -333,3 +333,5 @@ function processPhase1Command(command, currentValues) {
         
         return success;
       }
+
+window.processPhase1Command = processPhase1Command;
