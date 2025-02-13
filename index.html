@@ -281,7 +281,7 @@ function initializeGame() {
 }
 
 function startGame(level = 1) {
-    console.log(`Starting game with level ${level}`); // Add this line
+    console.log(`Starting game with level ${level}`);
     resetGameState();
     
     document.getElementById('history-container').innerHTML = '';
@@ -298,14 +298,22 @@ function startGame(level = 1) {
         format = Math.floor(Math.random() * 3) + 1;
     }
     
+    console.log(`Using format ${format} for level ${level}`);
     const values = generateNewEquation(level, format);
+    console.log('Generated values:', values);
+    
     if (values) {
-        gameState.currentEquation = createEquation(values);
-        gameState.isActive = true;
-        
-        displayEquation(gameState.currentEquation);
-        displayConstants();
-        createInputBox();
+        try {
+            gameState.currentEquation = createEquation(values);
+            console.log('Created equation:', gameState.currentEquation);
+            gameState.isActive = true;
+            
+            displayEquation(gameState.currentEquation);
+            displayConstants();
+            createInputBox();
+        } catch (error) {
+            console.error('Error creating equation:', error);
+        }
     }
 }
 
