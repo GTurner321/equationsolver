@@ -1,7 +1,9 @@
-I see the issue now. The problem is that there are some duplicated and misplaced code blocks. I'll help you clean up the `processPhase1Command` function. Here's a corrected version:
-
 ```javascript
+
+console.log('[DEBUG] phase1-commands.js is being loaded');
+
 function processPhase1Command(command, currentValues) {
+  console.log('[DEBUG] processPhase1Command function defined');
   console.log('[DEBUG] Processing Phase 1 Command:', command);
   
   // Validate currentValues before processing
@@ -334,4 +336,6 @@ function processPhase1Command(command, currentValues) {
         return success;
       }
 
+console.log('[DEBUG] Assigning processPhase1Command to window');
 window.processPhase1Command = processPhase1Command;
+console.log('[DEBUG] window.processPhase1Command is now:', typeof window.processPhase1Command);
