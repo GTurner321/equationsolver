@@ -5,7 +5,8 @@ window.gameState = {
     isActive: false,
     currentEquation: null,
     history: [],
-    constants: {}
+    constants: {},
+    currentPhase: 1  // Track which phase we're in
 };
 
 // Reset game state to initial values
@@ -15,7 +16,8 @@ function resetGameState() {
         isActive: false,
         currentEquation: null,
         history: [],
-        constants: {}
+        constants: {},
+        currentPhase: 1
     };
     
     // Clear UI elements
@@ -23,7 +25,8 @@ function resetGameState() {
         'history-container',
         'original-constants',
         'simplified-constants',
-        'initial-equation'
+        'initial-equation',
+        'input-container'
     ];
     
     elementsToReset.forEach(id => {
@@ -42,6 +45,9 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('[DEBUG] MathJax ready, initializing game');
             initializeGame();
         });
+    } else {
+        console.warn('[DEBUG] MathJax not found');
+        initializeGame();
     }
 });
 
@@ -49,9 +55,9 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeGame() {
     console.log('[DEBUG] Initializing game');
     resetGameState();
-    createInputBox();
 }
 
+// Start a new game at specified level
 function startGame(level = 1) {
     console.log(`[DEBUG] Starting game with level ${level}`);
     resetGameState();
@@ -62,6 +68,7 @@ function startGame(level = 1) {
     document.getElementById('simplified-constants').innerHTML = '';
     document.getElementById('initial-equation').innerHTML = '';
     
+    // Randomly select format for levels that have multiple formats
     let format = 1;
     if (level === 1 || level === 4) {
         format = Math.random() < 0.5 ? 1 : 2;
@@ -69,6 +76,15 @@ function startGame(level = 1) {
         format = Math.floor(Math.random() * 3) + 1;
     }
     
+    console.log(`[DEBUG] Using format ${format} for level ${level}`);
+    
+    // Check if required functions exist
+    if (!window.generateNewEquation) {
+        console.error('[DEBUG] generateNewEquation function not found');
+        return;
+    }
+    
+    // Generate new equation
     const values = window.generateNewEquation(level, format);
     console.log('[DEBUG] Generated values:', values);
     
@@ -76,12 +92,14 @@ function startGame(level = 1) {
         window.gameState.currentEquation = window.createEquation(values);
         window.gameState.isActive = true;
         
-        // Initialize display first
+        // Initialize display
         window.displayEquation(window.gameState.currentEquation);
         window.displayConstants();
         
-        // Only create input box after equation is displayed
+        // Create input box after a short delay to ensure equation is rendered
         setTimeout(() => createInputBox(), 100);
+    } else {
+        console.error('[DEBUG] Failed to generate equation values');
     }
 }
 
@@ -121,6 +139,48 @@ function createInputBox() {
                 this.value = '';
             }
         });
+        // Focus the input box
+        input.focus();
+    }
+}
+
+// Handle user commands
+function handleCommand(command) {
+    console.log('[DEBUG] Handling command:', command);
+    if (!command || !window.gameState.isActive) {
+        console.log('[DEBUG] Game not active or empty command');
+        return;
+    }
+
+    // Check which phase we're in and process accordingly
+    if (window.gameState.currentPhase === 1 && window.processPhase1Command) {
+        window.processPhase1Command(command);
+    } else if (window.gameState.currentPhase === 2 && window.processPhase2Command) {
+        window.processPhase2Command(command);
+    } else if (window.processCommand) {
+        window.processCommand(command);
+    } else {
+        console.error('[DEBUG] No command processor found for phase', window.gameState.currentPhase);
+    }
+}
+
+// Add history entry
+function addHistoryEntry(command, equation) {
+    const historyContainer = document.getElementById('history-container');
+    if (!historyContainer) return;
+
+    const entry = document.createElement('div');
+    entry.className = 'history-entry';
+    entry.innerHTML = `
+        <div class="command">Command: ${command}</div>
+        <div class="equation">${equation.toTeX()}</div>
+    `;
+
+    historyContainer.appendChild(entry);
+    if (window.MathJax) {
+        window.MathJax.typesetPromise([entry]).catch(err => {
+            console.error('[DEBUG] MathJax typesetting failed:', err);
+        });
     }
 }
 
@@ -136,3 +196,5 @@ window.initializeGame = initializeGame;
 window.createInputBox = createInputBox;
 window.initializeEquationDisplay = initializeEquationDisplay;
 window.resetGameState = resetGameState;
+window.handleCommand = handleCommand;
+window.addHistoryEntry = addHistoryEntry;
