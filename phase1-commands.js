@@ -1,5 +1,3 @@
-```javascript
-
 console.log('[DEBUG] phase1-commands.js is being loaded');
 
 function processPhase1Command(command, currentValues) {
