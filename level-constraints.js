@@ -175,3 +175,4 @@ function generateEquationForLevel(level, format = 1) {
 }
 
 window.generateEquationForLevel = generateEquationForLevel;
+window.levelConstraints = levelConstraints;
