@@ -245,7 +245,15 @@
         </div>
     </div>
 
-    <script src="instructions.html"></script>
+    <script>
+        // Load instructions.html content
+        fetch('instructions.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('instructions').innerHTML = html;
+            })
+            .catch(error => console.error('Error loading instructions:', error));
+    </script>
     <script src="equation-generator.js"></script>
     <script src="equation-renderer.js"></script>
     <script src="common-commands.js"></script>
