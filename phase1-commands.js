@@ -1,4 +1,4 @@
-console.log('[DEBUG] phase1-commands.js is being loaded');
+Copyconsole.log('[DEBUG] phase1-commands.js is being loaded');
 
 function processPhase1Command(command, currentValues) {
   console.log('[DEBUG] processPhase1Command function defined');
@@ -46,7 +46,7 @@ function processPhase1Command(command, currentValues) {
     }
     return a;
   }
-
+  
   function handleMultiply(n, currentValues) {
     // Defensive checks
     if (!currentValues || 
@@ -333,6 +333,9 @@ function processPhase1Command(command, currentValues) {
         
         return success;
       }
+
+ return false;
+}
 
 console.log('[DEBUG] Assigning processPhase1Command to window');
 window.processPhase1Command = processPhase1Command;
