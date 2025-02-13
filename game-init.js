@@ -152,18 +152,36 @@ function handleCommand(command) {
         return;
     }
 
+    // Check if currentValues exists and is an object
+    if (!window.currentValues || typeof window.currentValues !== 'object') {
+        console.error('[DEBUG] currentValues is not properly initialized');
+        return;
+    }
+
     // Check which phase we're in and process accordingly
-    if (window.gameState.currentPhase === 1 && window.processPhase1Command) {
-        window.processPhase1Command(command);
-    } else if (window.gameState.currentPhase === 2 && window.processPhase2Command) {
-        window.processPhase2Command(command);
-    } else if (window.processCommand) {
-        window.processCommand(command);
-    } else {
-        console.error('[DEBUG] No command processor found for phase', window.gameState.currentPhase);
+    try {
+        let result = false;
+        
+        // Determine which phase we're in based on fractions
+        const isPhase1 = evaluateFraction(window.currentValues.a, window.currentValues.b) !== 1 || 
+                         evaluateFraction(window.currentValues.g, window.currentValues.h) !== 1;
+
+        if (isPhase1 && window.processPhase1Command) {
+            result = window.processPhase1Command(command, window.currentValues);
+        } else if (!isPhase1 && window.processPhase2Command) {
+            result = window.processPhase2Command(command, window.currentValues);
+        } else if (window.processCommand) {
+            result = window.processCommand(command);
+        }
+
+        // Add the command to history if it was successful
+        if (result && window.gameState.currentEquation) {
+            window.addHistoryEntry(command, window.gameState.currentEquation);
+        }
+    } catch (error) {
+        console.error('[DEBUG] Error processing command:', error);
     }
 }
-
 // Add history entry
 function addHistoryEntry(command, equation) {
     const historyContainer = document.getElementById('history-container');
