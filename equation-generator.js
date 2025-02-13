@@ -1,6 +1,12 @@
 // Global state
 let currentValues = {};
 
+// Add this function definition at the start of equation-generator.js
+function evaluateFraction(num, den) {
+    if (den === 0) return undefined;
+    return num / den;
+}
+
 // Random number generation functions
 function getRandomInteger(includeZero = true) {
   let value;
