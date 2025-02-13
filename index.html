@@ -5,25 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Equation Solving Game</title>
 
+    <!-- MathJax configuration -->
     <script>
-        // Initial game state configuration
-        let gameState = {
-            isActive: false,
-            currentEquation: null,
-            history: [],
-            constants: {}
-        };
-
-        function resetGameState() {
-            gameState = {
-                isActive: false,
-                currentEquation: null,
-                history: [],
-                constants: {}
-            };
-        }
-
-        // MathJax configuration
         window.MathJax = {
             tex: {
                 inlineMath: [['$', '$'], ['\\(', '\\)']],
