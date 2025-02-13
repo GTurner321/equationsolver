@@ -272,40 +272,42 @@
             }
         });
 
-        function initializeGame() {
-            const generateBtn = document.querySelector('.generate-btn');
-            if (generateBtn) {
-                generateBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    if (typeof generateNewEquation === 'function' && 
-                        typeof displayEquation === 'function' && 
-                        typeof displayConstants === 'function') {
-                        startGame();
-                    }
-                });
-            }
-            startGame();
-        }
+function initializeGame() {
+    if (window.MathJax) {
+        window.MathJax.startup.promise.then(() => {
+            startGame(1); // Start with level 1 by default
+        });
+    }
+}
 
-        function startGame() {
-            resetGameState();
-            
-            document.getElementById('history-container').innerHTML = '';
-            document.getElementById('original-constants').innerHTML = '';
-            document.getElementById('simplified-constants').innerHTML = '';
-            document.getElementById('initial-equation').innerHTML = '';
-            document.getElementById('input-container').innerHTML = '';
-            
-            const equation = generateNewEquation();
-            if (equation) {
-                gameState.currentEquation = equation;
-                gameState.isActive = true;
-                
-                displayEquation(equation);
-                displayConstants();
-                createInputBox();
-            }
-        }
+function startGame(level = 1) {
+    console.log(`Starting game with level ${level}`); // Add this line
+    resetGameState();
+    
+    document.getElementById('history-container').innerHTML = '';
+    document.getElementById('original-constants').innerHTML = '';
+    document.getElementById('simplified-constants').innerHTML = '';
+    document.getElementById('initial-equation').innerHTML = '';
+    document.getElementById('input-container').innerHTML = '';
+    
+    // Randomly select a format for levels that have multiple formats
+    let format = 1;
+    if (level === 1 || level === 4) {
+        format = Math.random() < 0.5 ? 1 : 2;
+    } else if (level === 2) {
+        format = Math.floor(Math.random() * 3) + 1;
+    }
+    
+    const values = generateNewEquation(level, format);
+    if (values) {
+        gameState.currentEquation = createEquation(values);
+        gameState.isActive = true;
+        
+        displayEquation(gameState.currentEquation);
+        displayConstants();
+        createInputBox();
+    }
+}
 
         function createInputBox() {
             const inputContainer = document.getElementById('input-container');
@@ -350,7 +352,6 @@
     </script>
     
     <script src="equation-generator.js"></script>
-    <script src="level-constraints.js"></script>
     <script src="equation-renderer.js"></script>
     <script src="common-commands.js"></script>
     <script src="phase1-commands.js"></script>
