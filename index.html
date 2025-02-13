@@ -6,6 +6,7 @@
     <title>Equation Solving Game</title>
 
     <script>
+        // Initial game state configuration
         let gameState = {
             isActive: false,
             currentEquation: null,
@@ -22,6 +23,7 @@
             };
         }
 
+        // MathJax configuration
         window.MathJax = {
             tex: {
                 inlineMath: [['$', '$'], ['\\(', '\\)']],
@@ -138,28 +140,28 @@
         }
 
         .level-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin: 20px 0;
-}
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
 
-.generate-btn {
-    padding: 12px 24px;
-    font-size: 16px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
+        .generate-btn {
+            padding: 12px 24px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
 
-.generate-btn:hover {
-    background-color: #45a049;
-    transform: translateY(-2px);
-}
+        .generate-btn:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
 
         .constants {
             text-align: left;
@@ -247,12 +249,12 @@
 
         <h1>Equation Solving Game</h1>
         <div class="level-buttons">
-    <button class="generate-btn" onclick="startGame(1)">NEW EQUATION L1</button>
-    <button class="generate-btn" onclick="startGame(2)">NEW EQUATION L2</button>
-    <button class="generate-btn" onclick="startGame(3)">NEW EQUATION L3</button>
-    <button class="generate-btn" onclick="startGame(4)">NEW EQUATION L4</button>
-    <button class="generate-btn" onclick="startGame(5)">NEW EQUATION L5</button>
-</div>
+            <button class="generate-btn" onclick="startGame(1)">NEW EQUATION L1</button>
+            <button class="generate-btn" onclick="startGame(2)">NEW EQUATION L2</button>
+            <button class="generate-btn" onclick="startGame(3)">NEW EQUATION L3</button>
+            <button class="generate-btn" onclick="startGame(4)">NEW EQUATION L4</button>
+            <button class="generate-btn" onclick="startGame(5)">NEW EQUATION L5</button>
+        </div>
         
         <div id="game-container">
             <div id="original-constants" class="constants"></div>
@@ -263,88 +265,8 @@
         </div>
     </div>
 
+    <!-- Load instructions if available -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            if (window.MathJax) {
-                window.MathJax.startup.promise.then(() => {
-                    initializeGame();
-                });
-            }
-        });
-
-function initializeGame() {
-    if (window.MathJax) {
-        window.MathJax.startup.promise.then(() => {
-            startGame(1); // Start with level 1 by default
-        });
-    }
-}
-
-function startGame(level = 1) {
-    console.log(`Starting game with level ${level}`);
-    resetGameState();
-    
-    document.getElementById('history-container').innerHTML = '';
-    document.getElementById('original-constants').innerHTML = '';
-    document.getElementById('simplified-constants').innerHTML = '';
-    document.getElementById('initial-equation').innerHTML = '';
-    document.getElementById('input-container').innerHTML = '';
-    
-    // Randomly select a format for levels that have multiple formats
-    let format = 1;
-    if (level === 1 || level === 4) {
-        format = Math.random() < 0.5 ? 1 : 2;
-    } else if (level === 2) {
-        format = Math.floor(Math.random() * 3) + 1;
-    }
-    
-    console.log(`Using format ${format} for level ${level}`);
-    const values = generateNewEquation(level, format);
-    console.log('Generated values:', values);
-    
-    if (values) {
-        gameState.currentEquation = createEquation(values);
-        gameState.isActive = true;
-        
-        initializeEquationDisplay(values);
-        createInputBox();
-    }
-}
-
-        function createInputBox() {
-            const inputContainer = document.getElementById('input-container');
-            inputContainer.innerHTML = `
-                <div class="input-box">
-                    <input type="text" id="command-input" placeholder="Enter your command...">
-                </div>
-            `;
-            
-            const input = document.getElementById('command-input');
-            if (input) {
-                input.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        handleCommand(this.value);
-                        this.value = '';
-                    }
-                });
-            }
-        }
-
-        function displayEquation(equation) {
-            if (!equation) return;
-            
-            const initialEquationDiv = document.getElementById('initial-equation');
-            initialEquationDiv.innerHTML = `
-                <div class="equation">
-                    Initial equation: ${equation.toTeX()}
-                </div>
-            `;
-            
-            if (window.MathJax) {
-                window.MathJax.typesetPromise([initialEquationDiv]);
-            }
-        }
-
         fetch('instructions.html')
             .then(response => response.text())
             .then(html => {
@@ -353,8 +275,10 @@ function startGame(level = 1) {
             .catch(error => {});
     </script>
     
+    <!-- Game scripts -->
     <script src="equation-generator.js"></script>
     <script src="equation-renderer.js"></script>
+    <script src="game-init.js"></script>
     <script src="common-commands.js"></script>
     <script src="phase1-commands.js"></script>
     <script src="phase2-commands.js"></script>
