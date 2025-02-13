@@ -1,5 +1,6 @@
 // main-commands.js
-function processCommand(command) {
+window.processCommand = function(command) {
+    console.log('[DEBUG] Processing command in main-commands:', command);
   // currentValues is accessed as a global variable
   if (!command || typeof command !== 'string') return false;
   
