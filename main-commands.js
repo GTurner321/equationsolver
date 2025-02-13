@@ -2,6 +2,9 @@
 
 window.processCommand = function(command) {
     console.log('[DEBUG] Processing command in main-commands:', command);
+    console.log('[DEBUG] Available global functions:', Object.keys(window).filter(key => typeof window[key] === 'function'));
+    console.log('[DEBUG] processPhase1Command exists:', typeof window.processPhase1Command === 'function');
+    
     
     // Validate command
     if (!command || typeof command !== 'string') {
