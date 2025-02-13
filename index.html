@@ -137,22 +137,29 @@
             background-color: transparent;
         }
 
-        .generate-btn {
-            padding: 12px 24px;
-            font-size: 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin: 12px auto;
-            transition: background-color 0.3s;
-            display: block;
-        }
+        .level-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+}
 
-        .generate-btn:hover {
-            background-color: #45a049;
-        }
+.generate-btn {
+    padding: 12px 24px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.generate-btn:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+}
 
         .constants {
             text-align: left;
@@ -239,8 +246,14 @@
         </div>
 
         <h1>Equation Solving Game</h1>
-        <button class="generate-btn" onclick="startGame()">Generate New Equation</button>
-
+        <div class="level-buttons">
+    <button class="generate-btn" onclick="startGame(1)">NEW EQUATION L1</button>
+    <button class="generate-btn" onclick="startGame(2)">NEW EQUATION L2</button>
+    <button class="generate-btn" onclick="startGame(3)">NEW EQUATION L3</button>
+    <button class="generate-btn" onclick="startGame(4)">NEW EQUATION L4</button>
+    <button class="generate-btn" onclick="startGame(5)">NEW EQUATION L5</button>
+</div>
+        
         <div id="game-container">
             <div id="original-constants" class="constants"></div>
             <div id="simplified-constants" class="constants"></div>
@@ -337,6 +350,7 @@
     </script>
     
     <script src="equation-generator.js"></script>
+    <script src="level-constraints.js"></script>
     <script src="equation-renderer.js"></script>
     <script src="common-commands.js"></script>
     <script src="phase1-commands.js"></script>
