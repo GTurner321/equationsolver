@@ -10,6 +10,7 @@ window.gameState = {
 
 // Reset game state to initial values
 function resetGameState() {
+    console.log('[DEBUG] Resetting game state');
     window.gameState = {
         isActive: false,
         currentEquation: null,
@@ -35,23 +36,36 @@ function resetGameState() {
 
 // Initialize game when document is ready
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('[DEBUG] DOM Content Loaded');
     if (window.MathJax) {
         window.MathJax.startup.promise.then(() => {
+            console.log('[DEBUG] MathJax ready, initializing game');
             initializeGame();
         });
+    } else {
+        console.warn('[DEBUG] MathJax not found');
     }
 });
 
 // Main game initialization function
 function initializeGame() {
+    console.log('[DEBUG] Initializing game');
     resetGameState();
     createInputBox();
 }
 
 // Start a new game at specified level
 function startGame(level = 1) {
-    console.log(`Starting game with level ${level}`);
+    console.log(`[DEBUG] Starting game with level ${level}`);
     resetGameState();
+    
+    // Debug check for required functions
+    console.log('[DEBUG] Checking for required functions:', {
+        generateEquationForLevel: !!window.generateEquationForLevel,
+        createEquation: !!window.createEquation,
+        displayEquation: !!window.displayEquation,
+        displayConstants: !!window.displayConstants
+    });
     
     // Randomly select format for levels that have multiple formats
     let format = 1;
@@ -61,11 +75,16 @@ function startGame(level = 1) {
         format = Math.floor(Math.random() * 3) + 1;
     }
     
-    console.log(`Using format ${format} for level ${level}`);
+    console.log(`[DEBUG] Using format ${format} for level ${level}`);
     
     // Generate new equation using the correct function name
+    if (!window.generateEquationForLevel) {
+        console.error('[DEBUG] generateEquationForLevel function not found!');
+        return;
+    }
+    
     const values = window.generateEquationForLevel(level, format);
-    console.log('Generated values:', values);
+    console.log('[DEBUG] Generated values:', values);
     
     if (values) {
         window.gameState.currentEquation = window.createEquation(values);
@@ -76,14 +95,15 @@ function startGame(level = 1) {
         window.displayConstants();
         createInputBox();
     } else {
-        console.error('Failed to generate equation values');
+        console.error('[DEBUG] Failed to generate equation values');
     }
 }
 
 // Initialize equation display with given values
 function initializeEquationDisplay(values) {
+    console.log('[DEBUG] Initializing equation display with values:', values);
     if (!values) {
-        console.error('No values provided for equation display');
+        console.error('[DEBUG] No values provided for equation display');
         return;
     }
     
@@ -94,9 +114,10 @@ function initializeEquationDisplay(values) {
 
 // Create and set up the command input box
 function createInputBox() {
+    console.log('[DEBUG] Creating input box');
     const inputContainer = document.getElementById('input-container');
     if (!inputContainer) {
-        console.error('Input container not found');
+        console.error('[DEBUG] Input container not found');
         return;
     }
     
@@ -119,7 +140,7 @@ function createInputBox() {
 
 // Error handler for debugging
 window.onerror = function(msg, url, lineNo, columnNo, error) {
-    console.error('Error: ', msg, '\nURL: ', url, '\nLine: ', lineNo, '\nColumn: ', columnNo, '\nError object: ', error);
+    console.error('[DEBUG] Error: ', msg, '\nURL: ', url, '\nLine: ', lineNo, '\nColumn: ', columnNo, '\nError object: ', error);
     return false;
 };
 
