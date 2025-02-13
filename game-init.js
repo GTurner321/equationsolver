@@ -52,7 +52,6 @@ function initializeGame() {
     createInputBox();
 }
 
-// Start a new game at specified level
 function startGame(level = 1) {
     console.log(`[DEBUG] Starting game with level ${level}`);
     resetGameState();
@@ -63,7 +62,6 @@ function startGame(level = 1) {
     document.getElementById('simplified-constants').innerHTML = '';
     document.getElementById('initial-equation').innerHTML = '';
     
-    // Randomly select format for levels that have multiple formats
     let format = 1;
     if (level === 1 || level === 4) {
         format = Math.random() < 0.5 ? 1 : 2;
@@ -71,9 +69,6 @@ function startGame(level = 1) {
         format = Math.floor(Math.random() * 3) + 1;
     }
     
-    console.log(`[DEBUG] Using format ${format} for level ${level}`);
-    
-    // Generate new equation
     const values = window.generateNewEquation(level, format);
     console.log('[DEBUG] Generated values:', values);
     
@@ -81,12 +76,12 @@ function startGame(level = 1) {
         window.gameState.currentEquation = window.createEquation(values);
         window.gameState.isActive = true;
         
-        // Initialize display
+        // Initialize display first
         window.displayEquation(window.gameState.currentEquation);
         window.displayConstants();
-        createInputBox();
-    } else {
-        console.error('[DEBUG] Failed to generate equation values');
+        
+        // Only create input box after equation is displayed
+        setTimeout(() => createInputBox(), 100);
     }
 }
 
