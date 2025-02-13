@@ -1,178 +1,152 @@
-// Level-specific constraint generators
-const levelConstraints = {
-  // Level 1 constraints
-  generateLevel1Format1: () => {
-    let values = generateBaseValues();
-    // Format: 4x = 10
-    values.a = values.b;  // reduces to 1
-    values.c = values.d;  // reduces to 1
-    values.e = values.f = 0;  // no constant term on left
-    values.g = values.h;  // reduces to 1
-    values.i = values.j = 0;  // no x term on right
-    // Ensure k/l is non-zero integer
-    do {
-      values.k = getRandomInteger(false);
-      values.l = 1;
-    } while (values.k === 0);
-    return values;
-  },
+// game-init.js - Handles all game initialization and setup
 
-  generateLevel1Format2: () => {
-    let values = generateBaseValues();
-    // Format: x + 7 = 12
-    values.a = values.b = values.c = values.d = 1;  // coefficient of x is 1
-    // e/f is non-zero integer
-    values.e = getRandomInteger(false);
-    values.f = 1;
-    values.g = values.h;  // reduces to 1
-    values.i = values.j = 0;  // no x term on right
-    // k/l is non-zero integer
-    values.k = getRandomInteger(false);
-    values.l = 1;
-    return values;
-  },
-
-  // Level 2 constraints
-  generateLevel2Format1: () => {
-    let values = generateBaseValues();
-    // Format: 3x + 1 = 13
-    values.a = values.b;  // reduces to 1
-    values.c = getRandomInteger(false);  // integer coefficient
-    values.d = 1;
-    values.e = getRandomInteger();  // integer constant
-    values.f = 1;
-    values.g = values.h;  // reduces to 1
-    values.i = values.j = 0;  // no x term on right
-    values.k = getRandomInteger(false);  // non-zero integer
-    values.l = 1;
-    return values;
-  },
-
-  generateLevel2Format2: () => {
-    let values = generateBaseValues();
-    // Format: x/4 + 6 = 10
-    values.a = values.b;  // reduces to 1
-    values.c = 1;
-    values.d = getRandomInteger(false);  // non-zero integer denominator
-    values.e = getRandomInteger();  // integer constant
-    values.f = 1;
-    values.g = values.h;  // reduces to 1
-    values.i = values.j = 0;  // no x term on right
-    values.k = getRandomInteger(false);
-    values.l = 1;
-    return values;
-  },
-
-  generateLevel2Format3: () => {
-    let values = generateBaseValues();
-    // Format: 4(x + 2) = 15
-    values.a = values.b;  // reduces to 1
-    values.c = values.d = 1;  // coefficient inside parentheses is 1
-    values.e = getRandomInteger();  // integer constant inside parentheses
-    values.f = 1;
-    values.g = values.h;  // reduces to 1
-    values.i = values.j = 0;  // no x term on right
-    values.k = getRandomInteger(false);
-    values.l = 1;
-    return values;
-  },
-
-  // Level 3 constraints
-  generateLevel3: () => {
-    let values = generateBaseValues();
-    // Format: 2x + 10 = 3x + 2
-    values.a = values.b;  // reduces to 1
-    values.c = getRandomInteger(false);  // left coefficient integer
-    values.d = 1;
-    values.e = getRandomInteger();  // left constant integer
-    values.f = 1;
-    values.g = values.h;  // reduces to 1
-    do {
-      values.i = getRandomInteger(false);  // right coefficient integer
-      values.j = 1;
-    } while ((values.c / values.d) === (values.i / values.j));  // ensure x terms don't cancel
-    values.k = getRandomInteger();  // right constant integer
-    values.l = 1;
-    return values;
-  },
-
-  // Level 4 constraints
-  generateLevel4Format1: () => {
-    let values = generateBaseValues();
-    // Format: 5(3x + 1) = 4(4x - 1)
-    values.a = values.b;  // reduces to 1
-    values.c = getRandomInteger(false);  // integer
-    values.d = 1;
-    values.e = getRandomInteger();  // integer
-    values.f = 1;
-    values.g = values.h;  // reduces to 1
-    do {
-      values.i = getRandomInteger(false);  // integer
-      values.j = 1;
-    } while ((values.c / values.d) === (values.i / values.j));  // ensure x terms don't cancel
-    values.k = getRandomInteger();  // integer
-    values.l = 1;
-    return values;
-  },
-
-  generateLevel4Format2: () => {
-    let values = generateBaseValues();
-    // Format: 5/2(3x + 1) = 4x - 1
-    [values.a, values.b] = getRandomPair();  // fraction allowed
-    values.c = getRandomInteger(false);  // integer
-    values.d = 1;
-    values.e = getRandomInteger();  // integer
-    values.f = 1;
-    values.g = values.h;  // reduces to 1
-    do {
-      values.i = getRandomInteger(false);  // integer
-      values.j = 1;
-    } while (((values.a * values.c) / (values.b * values.d)) === (values.i / values.j));
-    values.k = getRandomInteger();  // integer
-    values.l = 1;
-    return values;
-  },
-
-  // Level 5 constraints
-  generateLevel5: () => {
-    let values = generateBaseValues();
-    // Ensure no numerators are zero
-    while (values.a === 0 || values.c === 0 || values.e === 0 || 
-           values.g === 0 || values.i === 0 || values.k === 0) {
-      values = generateBaseValues();
-    }
-    return values;
-  }
+// Define the global game state
+window.gameState = {
+    isActive: false,
+    currentEquation: null,
+    history: [],
+    constants: {}
 };
 
-// Function to generate equation based on level and format
-function generateEquationForLevel(level, format = 1) {
-  let values;
-  switch(level) {
-    case 1:
-      values = format === 1 ? levelConstraints.generateLevel1Format1() 
-                           : levelConstraints.generateLevel1Format2();
-      break;
-    case 2:
-      if (format === 1) values = levelConstraints.generateLevel2Format1();
-      else if (format === 2) values = levelConstraints.generateLevel2Format2();
-      else values = levelConstraints.generateLevel2Format3();
-      break;
-    case 3:
-      values = levelConstraints.generateLevel3();
-      break;
-    case 4:
-      values = format === 1 ? levelConstraints.generateLevel4Format1() 
-                           : levelConstraints.generateLevel4Format2();
-      break;
-    case 5:
-      values = levelConstraints.generateLevel5();
-      break;
-    default:
-      values = generateBaseValues();
-  }
-  return simplifyAllFractions(values);
+// Reset game state to initial values
+function resetGameState() {
+    console.log('[DEBUG] Resetting game state');
+    window.gameState = {
+        isActive: false,
+        currentEquation: null,
+        history: [],
+        constants: {}
+    };
+    
+    // Clear UI elements
+    const elementsToReset = [
+        'history-container',
+        'original-constants',
+        'simplified-constants',
+        'initial-equation'
+    ];
+    
+    elementsToReset.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.innerHTML = '';
+        }
+    });
 }
 
-window.generateEquationForLevel = generateEquationForLevel;
-window.levelConstraints = levelConstraints;
+// Initialize game when document is ready
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('[DEBUG] DOM Content Loaded');
+    if (window.MathJax) {
+        window.MathJax.startup.promise.then(() => {
+            console.log('[DEBUG] MathJax ready, initializing game');
+            initializeGame();
+        });
+    } else {
+        console.warn('[DEBUG] MathJax not found');
+    }
+});
+
+// Main game initialization function
+function initializeGame() {
+    console.log('[DEBUG] Initializing game');
+    resetGameState();
+    createInputBox();
+}
+
+// Start a new game at specified level
+function startGame(level = 1) {
+    console.log(`[DEBUG] Starting game with level ${level}`);
+    resetGameState();
+    
+    // Debug check for required functions
+    console.log('[DEBUG] Checking for required functions:', {
+        generateEquationForLevel: !!window.generateEquationForLevel,
+        createEquation: !!window.createEquation,
+        displayEquation: !!window.displayEquation,
+        displayConstants: !!window.displayConstants
+    });
+    
+    // Randomly select format for levels that have multiple formats
+    let format = 1;
+    if (level === 1 || level === 4) {
+        format = Math.random() < 0.5 ? 1 : 2;
+    } else if (level === 2) {
+        format = Math.floor(Math.random() * 3) + 1;
+    }
+    
+    console.log(`[DEBUG] Using format ${format} for level ${level}`);
+    
+    // Generate new equation using the correct function name
+    if (!window.generateEquationForLevel) {
+        console.error('[DEBUG] generateEquationForLevel function not found!');
+        return;
+    }
+    
+    const values = window.generateEquationForLevel(level, format);
+    console.log('[DEBUG] Generated values:', values);
+    
+    if (values) {
+        window.gameState.currentEquation = window.createEquation(values);
+        window.gameState.isActive = true;
+        
+        // Initialize display
+        window.displayEquation(window.gameState.currentEquation);
+        window.displayConstants();
+        createInputBox();
+    } else {
+        console.error('[DEBUG] Failed to generate equation values');
+    }
+}
+
+// Initialize equation display with given values
+function initializeEquationDisplay(values) {
+    console.log('[DEBUG] Initializing equation display with values:', values);
+    if (!values) {
+        console.error('[DEBUG] No values provided for equation display');
+        return;
+    }
+    
+    const equation = window.createEquation(values);
+    window.displayEquation(equation);
+    window.displayConstants();
+}
+
+// Create and set up the command input box
+function createInputBox() {
+    console.log('[DEBUG] Creating input box');
+    const inputContainer = document.getElementById('input-container');
+    if (!inputContainer) {
+        console.error('[DEBUG] Input container not found');
+        return;
+    }
+    
+    inputContainer.innerHTML = `
+        <div class="input-box">
+            <input type="text" id="command-input" placeholder="Enter your command...">
+        </div>
+    `;
+    
+    const input = document.getElementById('command-input');
+    if (input) {
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleCommand(this.value);
+                this.value = '';
+            }
+        });
+    }
+}
+
+// Error handler for debugging
+window.onerror = function(msg, url, lineNo, columnNo, error) {
+    console.error('[DEBUG] Error: ', msg, '\nURL: ', url, '\nLine: ', lineNo, '\nColumn: ', columnNo, '\nError object: ', error);
+    return false;
+};
+
+// Make functions available globally
+window.startGame = startGame;
+window.initializeGame = initializeGame;
+window.createInputBox = createInputBox;
+window.initializeEquationDisplay = initializeEquationDisplay;
+window.resetGameState = resetGameState;
