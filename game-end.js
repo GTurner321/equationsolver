@@ -147,7 +147,7 @@ function displayWinMessage(winCondition) {
   // Format the solution in the most appropriate format
   const solution = formatSolution(winCondition.num, winCondition.den);
   
-  // Create the message with MathJax formatting and new equation button
+  // Create the message with MathJax formatting and level buttons
   winMessage.innerHTML = `
     <div class="congratulations">
       Well done! You have solved the equation.
@@ -155,7 +155,13 @@ function displayWinMessage(winCondition) {
     <div class="solution">
       \\[x = ${solution}\\]
     </div>
-    <button class="generate-btn" onclick="startGame()">Generate New Equation</button>
+    <div class="level-buttons">
+      <button class="generate-btn" onclick="startGame(1)">NEW EQUATION L1</button>
+      <button class="generate-btn" onclick="startGame(2)">NEW EQUATION L2</button>
+      <button class="generate-btn" onclick="startGame(3)">NEW EQUATION L3</button>
+      <button class="generate-btn" onclick="startGame(4)">NEW EQUATION L4</button>
+      <button class="generate-btn" onclick="startGame(5)">NEW EQUATION L5</button>
+    </div>
   `;
   
   // Add the message to the container
